@@ -14,7 +14,7 @@ GeoFlag is a open source [Google Chrome](https://www.google.com/chrome/browser/d
 
 ### Installation
 
-[![Available in the Chrome Web Store](https://developer.chrome.com/webstore/images/ChromeWebStore_BadgeWBorder_v2_206x58.png)](https://chrome.google.com/webstore/detail/geoflag/jidjgfepnmonpcmaihbifgjkbilkipoh)
+<a href="https://chrome.google.com/webstore/detail/geoflag/jidjgfepnmonpcmaihbifgjkbilkipoh" target="_blank"><img src="https://developer.chrome.com/webstore/images/ChromeWebStore_BadgeWBorder_v2_206x58.png" alt="Available in the Chrome Web Store"></a>
 
 ### Todo's
 
