@@ -16,6 +16,8 @@ GeoFlag is a open source [Google Chrome](https://www.google.com/chrome/browser/d
 
 <a href="https://chrome.google.com/webstore/detail/geoflag/jidjgfepnmonpcmaihbifgjkbilkipoh" target="_blank"><img src="https://developer.chrome.com/webstore/images/ChromeWebStore_BadgeWBorder_v2_206x58.png" alt="Available in the Chrome Web Store"></a>
 
+Alternatively, you can download the GeoFlag extension from https://github.com/jacobg830/chrome-geoflag/releases and install it manually.
+
 ### Todo's
 
  - Translations
