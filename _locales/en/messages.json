@@ -1,0 +1,12 @@
+{
+    "description": {
+        "message": "Shows a flag based on the current website's server location.",
+        "description": "The description of the application, displayed in the web store."
+    },
+    "country": {
+        "message": "Country"
+    },
+    "domain": {
+        "message": "Domain"
+    }
+}
