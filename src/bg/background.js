@@ -114,15 +114,13 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
         // Add IP to array
         currentIPList[host] = ip;
 
-        var database;
+        // Select correct database
         if (ipaddr.IPv4.isValid(ip)) {
-            database = "GeoLite2-Country-Blocks-IPv4.csv";
+            var database = "GeoLite2-Country-Blocks-IPv4.csv";
 
         } else {
-            database = "GeoLite2-Country-Blocks-IPv6.csv";
+            var database = "GeoLite2-Country-Blocks-IPv6.csv";
         }
-
-        var geoname_id;
         
         var results1 = Papa.parse("../../geolite2/" + database, {
             header: true,
@@ -139,7 +137,9 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                     var split = country["network"].split('/');
                     var range = ipaddr.parse(split[0]);
                     if (addr.match(range, split[1])) {
-                        geoname_id = country["geoname_id"];
+                        
+                        // Get geoname_id from row
+                        var geoname_id = country["geoname_id"];
 
                         var results2 = Papa.parse("../../geolite2/GeoLite2-Country-Locations-en.csv", {
                             header: true,
@@ -150,17 +150,19 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 
                                 results.data.forEach(function (country) {
                                     
+                                    // If row contains geoname_id
                                     if (country["geoname_id"] === geoname_id) {
+                                        
+                                        // Store information
                                         if (country["country_iso_code"]) {
                                             currentCodeList[host] = country["country_iso_code"].toLowerCase();
-                                        } else {
-                                            currentCodeList[host] = country["continent_code"].toLowerCase();
-                                        }
-                                        if (country["country_name"]) {
                                             currentCountryList[host] = country["country_name"];
                                         } else {
+                                            currentCodeList[host] = country["continent_code"].toLowerCase();
                                             currentCountryList[host] = country["continent_name"];
                                         }
+                                        
+                                        // Display country information in address bar
                                         chrome.pageAction.setIcon({tabId: info.tabId, path: "../../flags/" + currentCodeList[host] + ".png"});
                                         chrome.pageAction.show(info.tabId);
                                         chrome.pageAction.setTitle({tabId: info.tabId, title: currentCountryList[host] + "\n\
