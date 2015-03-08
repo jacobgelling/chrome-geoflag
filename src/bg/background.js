@@ -30,7 +30,7 @@ function getItem(key) {
 
 // Display country information in address bar
 function showFlag(tabId, host) {
-    chrome.pageAction.setIcon({tabId: tabId, path: "../../flags/" + currentCodeList[host] + ".png"});
+    chrome.pageAction.setIcon({tabId: tabId, path: "../../img/flags/" + currentCodeList[host] + ".png"});
     chrome.pageAction.show(tabId);
     chrome.pageAction.setTitle({tabId: tabId, title: currentCountryList[host] + "\n\
 " + host + "\n\
