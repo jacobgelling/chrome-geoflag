@@ -1,3 +1,4 @@
+// Get domain from url
 function getHost(url) {
     var host;
     if (url.indexOf("://") > -1) {
