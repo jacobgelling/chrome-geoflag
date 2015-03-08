@@ -27,6 +27,15 @@ function getItem(key) {
     return value;
 }
 
+// Display country information in address bar
+function showFlag(tabId, host) {
+    chrome.pageAction.setIcon({tabId: tabId, path: "../../flags/" + currentCodeList[host] + ".png"});
+    chrome.pageAction.show(tabId);
+    chrome.pageAction.setTitle({tabId: tabId, title: currentCountryList[host] + "\n\
+" + host + "\n\
+" + currentIPList[host]});
+}
+
 // Declare arrays to store IPs
 var currentIPList = {};
 var currentCountryList = {};
@@ -81,23 +90,23 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
         } else {
             var database = "GeoLite2-Country-Blocks-IPv6.csv";
         }
-        
+
         var results1 = Papa.parse("../../geolite2/" + database, {
             header: true,
             download: true,
             worker: true,
             skipEmptyLines: true,
             complete: function (results) {
-                
+
                 var addr = ipaddr.parse(ip);
-                
+
                 results.data.forEach(function (country) {
 
                     // If row contains ip
                     var split = country["network"].split('/');
                     var range = ipaddr.parse(split[0]);
                     if (addr.match(range, split[1])) {
-                        
+
                         // Get geoname_id from row
                         var geoname_id = country["geoname_id"];
 
@@ -109,10 +118,10 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                             complete: function (results) {
 
                                 results.data.forEach(function (country) {
-                                    
+
                                     // If row contains geoname_id
                                     if (country["geoname_id"] === geoname_id) {
-                                        
+
                                         // Store information
                                         if (country["country_iso_code"]) {
                                             currentCodeList[host] = country["country_iso_code"].toLowerCase();
@@ -121,13 +130,9 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                                             currentCodeList[host] = country["continent_code"].toLowerCase();
                                             currentCountryList[host] = country["continent_name"];
                                         }
-                                        
+
                                         // Display country information in address bar
-                                        chrome.pageAction.setIcon({tabId: info.tabId, path: "../../flags/" + currentCodeList[host] + ".png"});
-                                        chrome.pageAction.show(info.tabId);
-                                        chrome.pageAction.setTitle({tabId: info.tabId, title: currentCountryList[host] + "\n\
-" + host + "\n\
-" + currentIPList[host]});
+                                        showFlag(info.tabId, host);
                                     }
                                 });
 
@@ -151,10 +156,7 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (!chrome.runtime.lastError && typeof currentCodeList[getHost(tab.url)] !== "undefined")
     {
-        chrome.pageAction.setIcon({tabId: tabId, path: "../../flags/" + currentCodeList[getHost(tab.url)] + ".png"});
-        chrome.pageAction.show(tabId);
-        chrome.pageAction.setTitle({tabId: tabId, title: currentCountryList[getHost(tab.url)] + "\n\
-" + getHost(tab.url) + "\n\
-" + currentIPList[getHost(tab.url)]});
+        // Display country information in address bar
+        showFlag(tabId, getHost(tab.url));
     }
 });
