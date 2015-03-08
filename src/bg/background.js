@@ -117,80 +117,80 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
             chrome.pageAction.setTitle({tabId: info.tabId, title: currentCountryList[host] + "\n\
 " + host + "\n\
 " + currentIPList[host]});
-        }
-
-        // Add IP to array
-        currentIPList[host] = ip;
-
-        var database;
-        if (ipaddr.IPv4.isValid(ip)) {
-            database = "GeoLite2-Country-Blocks-IPv4.csv";
-
         } else {
-            database = "GeoLite2-Country-Blocks-IPv6.csv";
-        }
 
-        var geoname_id;
+            // Add IP to array
+            currentIPList[host] = ip;
 
-        // Currently only IPv4 supported
-        //if (ipaddr.IPv4.isValid(ip)) {
-        var results1 = Papa.parse("../../geolite2/" + database, {
-            header: true,
-            download: true,
-            worker: true,
-            skipEmptyLines: true,
-            complete: function (results) {
-                //console.log(results);
-                
-                var addr = ipaddr.parse(ip);
-                
-                results.data.forEach(function (country) {
+            var database;
+            if (ipaddr.IPv4.isValid(ip)) {
+                database = "GeoLite2-Country-Blocks-IPv4.csv";
 
-                    // If row contains ip
-                    var split = country["network"].split('/');
-                    var range = ipaddr.parse(split[0]);
-                    if (addr.match(range, split[1])) {
-                        geoname_id = country["geoname_id"];
+            } else {
+                database = "GeoLite2-Country-Blocks-IPv6.csv";
+            }
 
-                        var results2 = Papa.parse("../../geolite2/GeoLite2-Country-Locations-en.csv", {
-                            header: true,
-                            download: true,
-                            worker: true,
-                            skipEmptyLines: true,
-                            complete: function (results) {
+            var geoname_id;
 
-                                //console.log(results);
-                                results.data.forEach(function (country) {
-                                    //console.log(country["country_name"]);
-                                    if (country["geoname_id"] === geoname_id) {
-                                        if (country["country_iso_code"]) {
-                                            currentCodeList[host] = country["country_iso_code"].toLowerCase();
-                                        } else {
-                                            currentCodeList[host] = country["continent_code"].toLowerCase();
-                                        }
-                                        if (country["country_name"]) {
-                                            currentCountryList[host] = country["country_name"];
-                                        } else {
-                                            currentCountryList[host] = country["continent_name"];
-                                        }
-                                        chrome.pageAction.setIcon({tabId: info.tabId, path: "../../flags/" + currentCodeList[host] + ".png"});
-                                        chrome.pageAction.show(info.tabId);
-                                        chrome.pageAction.setTitle({tabId: info.tabId, title: currentCountryList[host] + "\n\
+            // Currently only IPv4 supported
+            //if (ipaddr.IPv4.isValid(ip)) {
+            var results1 = Papa.parse("../../geolite2/" + database, {
+                header: true,
+                download: true,
+                worker: true,
+                skipEmptyLines: true,
+                complete: function (results) {
+                    //console.log(results);
+
+                    var addr = ipaddr.parse(ip);
+
+                    results.data.forEach(function (country) {
+
+                        // If row contains ip
+                        var split = country["network"].split('/');
+                        var range = ipaddr.parse(split[0]);
+                        if (addr.match(range, split[1])) {
+                            geoname_id = country["geoname_id"];
+
+                            var results2 = Papa.parse("../../geolite2/GeoLite2-Country-Locations-en.csv", {
+                                header: true,
+                                download: true,
+                                worker: true,
+                                skipEmptyLines: true,
+                                complete: function (results) {
+
+                                    //console.log(results);
+                                    results.data.forEach(function (country) {
+                                        //console.log(country["country_name"]);
+                                        if (country["geoname_id"] === geoname_id) {
+                                            if (country["country_iso_code"]) {
+                                                currentCodeList[host] = country["country_iso_code"].toLowerCase();
+                                            } else {
+                                                currentCodeList[host] = country["continent_code"].toLowerCase();
+                                            }
+                                            if (country["country_name"]) {
+                                                currentCountryList[host] = country["country_name"];
+                                            } else {
+                                                currentCountryList[host] = country["continent_name"];
+                                            }
+                                            chrome.pageAction.setIcon({tabId: info.tabId, path: "../../flags/" + currentCodeList[host] + ".png"});
+                                            chrome.pageAction.show(info.tabId);
+                                            chrome.pageAction.setTitle({tabId: info.tabId, title: currentCountryList[host] + "\n\
 " + host + "\n\
 " + currentIPList[host]});
-                                    }
-                                });
+                                        }
+                                    });
 
-                            }
-                        });
+                                }
+                            });
 
-                    }
+                        }
 
-                });
-            }
-        });
-        //}
-
+                    });
+                }
+            });
+            //}
+        }
 
     }
     return;
