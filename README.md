@@ -27,6 +27,7 @@ Alternatively you can download the GeoFlag extension from https://github.com/jac
  - Custom icons
  - Better sized icons
  - Tidy up code
+ - Detect all local IPs
 
 ### License
 
