@@ -123,16 +123,13 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
         }
 
         var geoname_id;
-
-        // Currently only IPv4 supported
-        //if (ipaddr.IPv4.isValid(ip)) {
+        
         var results1 = Papa.parse("../../geolite2/" + database, {
             header: true,
             download: true,
             worker: true,
             skipEmptyLines: true,
             complete: function (results) {
-                //console.log(results);
                 
                 var addr = ipaddr.parse(ip);
                 
@@ -151,9 +148,8 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                             skipEmptyLines: true,
                             complete: function (results) {
 
-                                //console.log(results);
                                 results.data.forEach(function (country) {
-                                    //console.log(country["country_name"]);
+                                    
                                     if (country["geoname_id"] === geoname_id) {
                                         if (country["country_iso_code"]) {
                                             currentCodeList[host] = country["country_iso_code"].toLowerCase();
@@ -181,8 +177,6 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                 });
             }
         });
-        //}
-
 
     }
     return;
