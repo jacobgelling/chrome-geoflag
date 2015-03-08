@@ -23,7 +23,6 @@ chrome.tabs.query({active: true}, function (tabs) {
             document.getElementById("whois").href = "https://whois.domaintools.com/" + host;
             document.getElementById("wot").href = "https://www.mywot.com/scorecard/" + host;
             document.getElementById("ssltest").href = "https://www.ssllabs.com/ssltest/analyze.html?d=" + host + "&s=" + ip;
-            document.getElementById("tools").className = "";
         }
     });
 });
