@@ -142,7 +142,10 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 
     }
     return;
-}, {urls: ["<all_urls>"], types: ["main_frame"]}, []);
+}, {
+    urls: ["<all_urls>"],
+    types: ["main_frame"]
+}, []);
 
 // Listen for any changes to the URL of any tab
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
