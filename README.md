@@ -20,7 +20,6 @@ Alternatively you can download the GeoFlag extension from https://github.com/jac
 
 ### Todo's
 
- - Use correct database locale
  - Performance optimisations
  - Options page
  - Custom tools
