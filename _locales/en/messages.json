@@ -4,9 +4,15 @@
         "description": "The description of the application, displayed in the web store."
     },
     "country": {
-        "message": "Country"
+        "message": "Country:",
+        "description": "Preceeds the country name in the popup."
     },
     "domain": {
-        "message": "Domain"
+        "message": "Domain:",
+        "description": "Preceeds the domain in the popup."
+    },
+    "ip": {
+        "message": "IP:",
+        "description": "Preceeds the IP address in the popup."
     }
 }

@@ -16,9 +16,20 @@ chrome.tabs.query({active: true}, function (tabs) {
         ip = response.domainToIP;
         if (ip !== "Unknown") {
             host = getHost(url);
-            document.getElementById("domain").innerHTML = host;
-            document.getElementById("server-ip").innerHTML = ip;
-            document.getElementById("country").innerHTML = response.domainToCountry;
+            
+            // Show domain
+            document.getElementById("desc-domain").innerHTML = chrome.i18n.getMessage("domain");
+            document.getElementById("value-domain").innerHTML = host;
+            
+            // Show IP address
+            document.getElementById("desc-ip").innerHTML = chrome.i18n.getMessage("ip");
+            document.getElementById("value-ip").innerHTML = ip;
+            
+            // Show country
+            document.getElementById("desc-country").innerHTML = chrome.i18n.getMessage("country");
+            document.getElementById("value-country").innerHTML = response.domainToCountry;
+            
+            // Create tool links
             document.getElementById("geotool").href = "http://geoip.flagfox.net/?ip=" + ip + "&host=" + host;
             document.getElementById("whois").href = "https://whois.domaintools.com/" + host;
             document.getElementById("wot").href = "https://www.mywot.com/scorecard/" + host;
