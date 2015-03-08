@@ -72,6 +72,19 @@ chrome.extension.onMessage.addListener(
         }
 );
 
+// Check if file exists
+function fileExists(url) {
+    try
+    {
+        var http = new XMLHttpRequest();
+        http.open('HEAD', url, false);
+        http.send();
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
 // Get IP
 chrome.webRequest.onResponseStarted.addListener(function (info) {
 
@@ -111,7 +124,14 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                         // Get geoname_id from row
                         var geoname_id = country["geoname_id"];
 
-                        var results2 = Papa.parse("../../geolite2/GeoLite2-Country-Locations-en.csv", {
+                        // Get correct country database locale
+                        if (fileExists("../../geolite2/GeoLite2-Country-Locations-" + chrome.i18n.getUILanguage() + ".csv")) {
+                            var locale = chrome.i18n.getUILanguage();
+                        } else {
+                            var locale = "en";
+                        }
+
+                        var results2 = Papa.parse("../../geolite2/GeoLite2-Country-Locations-" + locale + ".csv", {
                             header: true,
                             download: true,
                             worker: true,
