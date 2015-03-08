@@ -124,9 +124,11 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                         // Get geoname_id from row
                         var geoname_id = country["geoname_id"];
 
+                        var ui_locale = chrome.i18n.getUILanguage().replace("_", "-");
+
                         // Get correct country database locale
-                        if (fileExists("../../geolite2/GeoLite2-Country-Locations-" + chrome.i18n.getUILanguage() + ".csv")) {
-                            var locale = chrome.i18n.getUILanguage();
+                        if (fileExists("../../geolite2/GeoLite2-Country-Locations-" + ui_locale + ".csv")) {
+                            var locale = ui_locale;
                         } else {
                             var locale = "en";
                         }
