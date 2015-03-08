@@ -92,7 +92,7 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
     var host = getHost(info.url);
 
     // If IP is valid & not cached
-    if (ipaddr.isValid(ip) && ip !== currentIPList[host] && currentCountryList[host]) {
+    if (ipaddr.isValid(ip) && ip !== currentIPList[host] && !currentCountryList[host]) {
 
         // Add IP to array
         currentIPList[host] = ip;
