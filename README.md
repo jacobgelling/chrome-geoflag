@@ -10,7 +10,7 @@ GeoFlag is a open source [Google Chrome](https://www.google.com/chrome/browser/d
 
 ### Version
 
-1.0.1
+1.0.2
 
 ### Installation
 
