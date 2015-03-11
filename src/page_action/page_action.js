@@ -30,8 +30,12 @@ chrome.tabs.query({active: true}, function (tabs) {
             document.getElementById("value-ip").innerHTML = ip;
 
             // Show country
-            document.getElementById("desc-country").innerHTML = chrome.i18n.getMessage("country");
-            document.getElementById("value-country").innerHTML = response.domainToCountry;
+            if (!response.domainToCountry) {
+                document.getElementById("country").className = "hidden";
+            } else {
+                document.getElementById("desc-country").innerHTML = chrome.i18n.getMessage("country");
+                document.getElementById("value-country").innerHTML = response.domainToCountry;
+            }
 
             // Create tool links
             document.getElementById("geotool").href = "http://geoip.flagfox.net/?ip=" + ip + "&host=" + host;
