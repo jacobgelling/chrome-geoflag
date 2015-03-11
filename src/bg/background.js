@@ -91,83 +91,95 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
     var ip = info.ip;
     var host = getHost(info.url);
 
-    // If IP is valid, not cached & doesn't have a country
-    if (ipaddr.isValid(ip) && ip !== currentIPList[host] && !currentCountryList[host]) {
+    // If IP is valid
+    if (ipaddr.isValid(ip)) {
 
-        // Add IP to array
-        currentIPList[host] = ip;
+        // If IP is not the same as cached
+        if (ip !== currentIPList[host]) {
 
-        // Select correct database
-        if (ipaddr.IPv4.isValid(ip)) {
-            var database = "GeoLite2-Country-Blocks-IPv4.csv";
+            // Add IP to array
+            currentIPList[host] = ip;
 
-        } else {
-            var database = "GeoLite2-Country-Blocks-IPv6.csv";
+            // Set country to undefined
+            currentCountryList[host] = undefined;
+
         }
 
-        var results1 = Papa.parse("../../geolite2/" + database, {
-            header: true,
-            download: true,
-            worker: true,
-            skipEmptyLines: true,
-            complete: function (results) {
+        // If no country cached
+        if (!currentCountryList[host]) {
 
-                var addr = ipaddr.parse(ip);
+            // Select correct database
+            if (ipaddr.IPv4.isValid(ip)) {
+                var database = "GeoLite2-Country-Blocks-IPv4.csv";
 
-                results.data.forEach(function (country) {
+            } else {
+                var database = "GeoLite2-Country-Blocks-IPv6.csv";
+            }
 
-                    // If row contains ip
-                    var split = country["network"].split('/');
-                    var range = ipaddr.parse(split[0]);
-                    if (addr.match(range, split[1])) {
+            var results1 = Papa.parse("../../geolite2/" + database, {
+                header: true,
+                download: true,
+                worker: true,
+                skipEmptyLines: true,
+                complete: function (results) {
 
-                        // Get geoname_id from row
-                        var geoname_id = country["geoname_id"];
+                    var addr = ipaddr.parse(ip);
 
-                        var ui_locale = chrome.i18n.getUILanguage().replace("_", "-");
+                    results.data.forEach(function (country) {
 
-                        // Get correct country database locale
-                        if (fileExists("../../geolite2/GeoLite2-Country-Locations-" + ui_locale + ".csv")) {
-                            var locale = ui_locale;
-                        } else {
-                            var locale = "en";
+                        // If row contains ip
+                        var split = country["network"].split('/');
+                        var range = ipaddr.parse(split[0]);
+                        if (addr.match(range, split[1])) {
+
+                            // Get geoname_id from row
+                            var geoname_id = country["geoname_id"];
+
+                            var ui_locale = chrome.i18n.getUILanguage().replace("_", "-");
+
+                            // Get correct country database locale
+                            if (fileExists("../../geolite2/GeoLite2-Country-Locations-" + ui_locale + ".csv")) {
+                                var locale = ui_locale;
+                            } else {
+                                var locale = "en";
+                            }
+
+                            var results2 = Papa.parse("../../geolite2/GeoLite2-Country-Locations-" + locale + ".csv", {
+                                header: true,
+                                download: true,
+                                worker: true,
+                                skipEmptyLines: true,
+                                complete: function (results) {
+
+                                    results.data.forEach(function (country) {
+
+                                        // If row contains geoname_id
+                                        if (country["geoname_id"] === geoname_id) {
+
+                                            // Store information
+                                            if (country["country_iso_code"]) {
+                                                currentCodeList[host] = country["country_iso_code"].toLowerCase();
+                                                currentCountryList[host] = country["country_name"];
+                                            } else {
+                                                currentCodeList[host] = country["continent_code"].toLowerCase();
+                                                currentCountryList[host] = country["continent_name"];
+                                            }
+
+                                            // Display country information in address bar
+                                            showFlag(info.tabId, host);
+                                        }
+                                    });
+
+                                }
+                            });
+
                         }
 
-                        var results2 = Papa.parse("../../geolite2/GeoLite2-Country-Locations-" + locale + ".csv", {
-                            header: true,
-                            download: true,
-                            worker: true,
-                            skipEmptyLines: true,
-                            complete: function (results) {
+                    });
+                }
+            });
 
-                                results.data.forEach(function (country) {
-
-                                    // If row contains geoname_id
-                                    if (country["geoname_id"] === geoname_id) {
-
-                                        // Store information
-                                        if (country["country_iso_code"]) {
-                                            currentCodeList[host] = country["country_iso_code"].toLowerCase();
-                                            currentCountryList[host] = country["country_name"];
-                                        } else {
-                                            currentCodeList[host] = country["continent_code"].toLowerCase();
-                                            currentCountryList[host] = country["continent_name"];
-                                        }
-
-                                        // Display country information in address bar
-                                        showFlag(info.tabId, host);
-                                    }
-                                });
-
-                            }
-                        });
-
-                    }
-
-                });
-            }
-        });
-
+        }
     }
     return;
 }, {
