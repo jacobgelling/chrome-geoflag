@@ -8,6 +8,10 @@ span {
     -webkit-user-select: text;
 }
 
+.hidden {
+    display: none;
+}
+
 #tools {
     list-style-type: none;
     padding-left: 0;

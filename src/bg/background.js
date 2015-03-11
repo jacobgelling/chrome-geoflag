@@ -32,9 +32,14 @@ function getItem(key) {
 function showFlag(tabId, host) {
     chrome.pageAction.setIcon({tabId: tabId, path: "../../img/flags/" + currentCodeList[host] + ".png"});
     chrome.pageAction.show(tabId);
-    chrome.pageAction.setTitle({tabId: tabId, title: currentCountryList[host] + "\n\
-" + host + "\n\
-" + currentIPList[host]});
+    var title = currentCountryList[host] + "\n\
+";
+    if (currentIPList[host] !== host) {
+        title += host + "\n\
+";
+    }
+    title += currentIPList[host];
+    chrome.pageAction.setTitle({tabId: tabId, title: title});
 }
 
 // Declare arrays to store IPs
