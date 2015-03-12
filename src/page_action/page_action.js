@@ -1,3 +1,4 @@
+// Get host from url
 function getHost(url) {
     var host;
     if (url.indexOf("://") > -1) {
@@ -10,31 +11,51 @@ function getHost(url) {
     return host;
 }
 
+// Hide a element by ID
+function hideElement(id) {
+    document.getElementById(id).className = "hidden";
+}
+
+// Change a element's text by ID (and class)
+function changeElementText(content, id, class) {
+    var el = document.getElementById(id);
+    if (class) {
+        el = el.getElementsByClassName(class)[0]
+    }
+    el.innerText = content;
+}
+
+// Get active tab information
 chrome.tabs.query({active: true}, function (tabs) {
     url = tabs[0].url;
     chrome.extension.sendMessage({type: "getIP", url: url}, function (response) {
-        ip = response.domainToIP;
+
+        var ip = response.domainToIP;
+
+        // If IP is not unknown
         if (ip !== "Unknown") {
-            host = getHost(url);
+
+            var host = getHost(url);
+            var country = response.domainToCountry;
 
             // Show domain
             if (host === ip) {
-                document.getElementById("domain").className = "hidden";
+                hideElement("info-domain");
             } else {
-                document.getElementById("desc-domain").innerHTML = chrome.i18n.getMessage("domain");
-                document.getElementById("value-domain").innerHTML = host;
+                changeElementText(chrome.i18n.getMessage("domain"), "info-domain", "description");
+                changeElementText(host, "info-domain", "value");
             }
 
             // Show IP address
-            document.getElementById("desc-ip").innerHTML = chrome.i18n.getMessage("ip");
-            document.getElementById("value-ip").innerHTML = ip;
+            changeElementText(chrome.i18n.getMessage("ip"), "info-ip", "description");
+            changeElementText(ip, "info-ip", "value");
 
             // Show country
-            if (!response.domainToCountry) {
-                document.getElementById("country").className = "hidden";
+            if (!country) {
+                hideElement("info-country");
             } else {
-                document.getElementById("desc-country").innerHTML = chrome.i18n.getMessage("country");
-                document.getElementById("value-country").innerHTML = response.domainToCountry;
+                changeElementText(chrome.i18n.getMessage("country"), "info-country", "description");
+                changeElementText(country, "info-country", "value");
             }
 
             // Create tool links

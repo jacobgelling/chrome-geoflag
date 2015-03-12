@@ -1,4 +1,4 @@
-// Get domain from url
+// Get host from url
 function getHost(url) {
     var host;
     if (url.indexOf("://") > -1) {
@@ -9,23 +9,6 @@ function getHost(url) {
     }
     host = host.split(':')[0];
     return host;
-}
-
-// Set the item in the localstorage
-function setItem(key, value) {
-    window.localStorage.removeItem(key);
-    window.localStorage.setItem(key, value);
-}
-
-// Get the item from local storage with the specified key
-function getItem(key) {
-    var value;
-    try {
-        value = window.localStorage.getItem(key);
-    } catch (e) {
-        value = "null";
-    }
-    return value;
 }
 
 // Display country information in address bar
@@ -59,8 +42,7 @@ chrome.extension.onMessage.addListener(
                     if (currentIPList[getHost(currentURL)] !== undefined) {
                         response({
                             domainToIP: currentIPList[getHost(currentURL)],
-                            domainToCountry: currentCountryList[getHost(currentURL)],
-                            domainToCode: currentCodeList[getHost(currentURL)]
+                            domainToCountry: currentCountryList[getHost(currentURL)]
                         });
                     } else {
                         response({

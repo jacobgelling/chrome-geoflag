@@ -1,3 +1,7 @@
+/* ----------------
+Global Styles
+---------------- */
+
 body {
     min-height: 237px;
     min-width: 250px;
@@ -12,15 +16,31 @@ span {
     display: none;
 }
 
+/* ----------------
+Information
+---------------- */
+
+#info {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#info li {
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+}
+
+/* ----------------
+Tools
+---------------- */
+
 #tools {
     list-style-type: none;
     padding-left: 0;
     margin-top: 6px;
     margin-bottom: 15px;
-}
-
-#tools ul {
-    margin: 0;
 }
 
 #tools li a {
