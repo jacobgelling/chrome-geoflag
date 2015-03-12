@@ -108,6 +108,7 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                 download: true,
                 worker: true,
                 skipEmptyLines: true,
+                fastMode: true,
                 complete: function (results) {
 
                     var addr = ipaddr.parse(ip);
@@ -136,6 +137,7 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                                 download: true,
                                 worker: true,
                                 skipEmptyLines: true,
+                                fastMode: true,
                                 complete: function (results) {
 
                                     results.data.forEach(function (country) {
@@ -146,10 +148,10 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                                             // Store information
                                             if (country["country_iso_code"]) {
                                                 currentCodeList[host] = country["country_iso_code"].toLowerCase();
-                                                currentCountryList[host] = country["country_name"];
+                                                currentCountryList[host] = country["country_name"].replace(/"/g, "");
                                             } else {
                                                 currentCodeList[host] = country["continent_code"].toLowerCase();
-                                                currentCountryList[host] = country["continent_name"];
+                                                currentCountryList[host] = country["continent_name"].replace(/"/g, "");
                                             }
 
                                             // Display country information in address bar
