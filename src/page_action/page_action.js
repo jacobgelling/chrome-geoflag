@@ -26,7 +26,7 @@ function changeElementText(content, id, class) {
 }
 
 // Get active tab information
-chrome.tabs.query({active: true}, function (tabs) {
+chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     url = tabs[0].url;
     chrome.extension.sendMessage({type: "getIP", url: url}, function (response) {
 
