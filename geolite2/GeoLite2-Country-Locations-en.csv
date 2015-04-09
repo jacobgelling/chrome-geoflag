@@ -136,6 +136,7 @@ geoname_id,locale_code,continent_code,continent_name,country_iso_code,country_na
 2434508,en,AF,Africa,TD,Chad
 2440476,en,AF,Africa,NE,Niger
 2453866,en,AF,Africa,ML,Mali
+2461445,en,AF,Africa,EH,"Western Sahara"
 2464461,en,AF,Africa,TN,Tunisia
 2510769,en,EU,Europe,ES,Spain
 2542007,en,AF,Africa,MA,Morocco

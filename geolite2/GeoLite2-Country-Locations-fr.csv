@@ -136,6 +136,7 @@ geoname_id,locale_code,continent_code,continent_name,country_iso_code,country_na
 2434508,fr,AF,Afrique,TD,Tchad
 2440476,fr,AF,Afrique,NE,Niger
 2453866,fr,AF,Afrique,ML,Mali
+2461445,fr,AF,Afrique,EH,"Sahara Occidental"
 2464461,fr,AF,Afrique,TN,Tunisie
 2510769,fr,EU,Europe,ES,Espagne
 2542007,fr,AF,Afrique,MA,Maroc
