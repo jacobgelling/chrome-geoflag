@@ -103,7 +103,7 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                 var database = "GeoLite2-Country-Blocks-IPv6.csv";
             }
 
-            var results1 = Papa.parse("../../geolite2/" + database, {
+            Papa.parse("../../geolite2/" + database, {
                 header: true,
                 download: true,
                 worker: true,
@@ -132,7 +132,7 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                                 var locale = "en";
                             }
 
-                            var results2 = Papa.parse("../../geolite2/GeoLite2-Country-Locations-" + locale + ".csv", {
+                            Papa.parse("../../geolite2/GeoLite2-Country-Locations-" + locale + ".csv", {
                                 header: true,
                                 download: true,
                                 worker: true,
