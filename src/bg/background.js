@@ -61,15 +61,15 @@ chrome.extension.onMessage.addListener(
 
 // Check if file exists
 function fileExists(url) {
-    try
-    {
-        var http = new XMLHttpRequest();
-        http.open('HEAD', url, false);
-        http.send();
+    var xhr = new XMLHttpRequest();
+    xhr.open('HEAD', url, true);
+    xhr.onload = function (e) {
         return true;
-    } catch (err) {
+    };
+    xhr.onerror = function (e) {
         return false;
-    }
+    };
+    xhr.send();
 }
 
 // Get IP
