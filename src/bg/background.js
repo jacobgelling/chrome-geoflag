@@ -1,3 +1,113 @@
+// Open database
+var request = indexedDB.open("GeoFlag", 201504);
+
+// Set supported database languages
+const languages = ["de", "en", "es", "fr", "ja", "pt_BR", "ru", "zh_CN"];
+
+// If error with database
+request.onerror = function (event) {
+    if (event.target.errorCode) {
+        alert("GeoFlag database error code " + event.target.errorCode + ".");
+    } else {
+        alert("GeoFlag database error.");
+    }
+};
+
+// If update to database is required
+request.onupgradeneeded = function (event) {
+    var db = event.target.result;
+
+    // If no database installed
+	if (event.oldVersion === 0) {
+
+        // Create tables
+        var IPv4 = db.createObjectStore("IPv4", { keyPath: "min_ip" });
+        var IPv6 = db.createObjectStore("IPv6", { keyPath: "ip" });
+        var de = db.createObjectStore('de', { keyPath: "geoname_id" });
+        var en = db.createObjectStore('en', { keyPath: "geoname_id" });
+        var es = db.createObjectStore('es', { keyPath: "geoname_id" });
+        var fr = db.createObjectStore('fr', { keyPath: "geoname_id" });
+        var ja = db.createObjectStore('ja', { keyPath: "geoname_id" });
+        var pt_BR = db.createObjectStore('pt_BR', { keyPath: "geoname_id" });
+        var ru = db.createObjectStore('ru', { keyPath: "geoname_id" });
+        var zh_CN = db.createObjectStore('zh_CN', { keyPath: "geoname_id" });
+
+        // Add records
+        request.onsuccess = function (event) {
+
+            for (var i in languages) {
+                inputDatabase(db, "language", languages[i]);
+            }
+
+            var addresses = ["IPv6"];
+            for (var i in addresses) {
+                inputDatabase(db, "addresses", addresses[i]);
+            }
+            inputDatabase(db, "ipv4", "IPv4");
+        }
+
+    }
+};
+
+function inputDatabase(db, type, table) {
+
+    // Get location of CSV
+    if (type === "language") {
+        var location = "Country-Locations-" + table.replace("_", "-");
+    } else {
+        var location = "Country-Blocks-" + table;
+    }
+
+    // Parse CSV
+    Papa.parse("../../geolite2/GeoLite2-" + location + ".csv", {
+        header: true,
+        download: true,
+        worker: true,
+        skipEmptyLines: true,
+        fastMode: true,
+        complete: function(results) {
+
+            // Create transaction
+            var transaction = db.transaction([table], "readwrite").objectStore(table);
+
+            // Insert each row from CSV to database
+            for (var i in results.data) {
+                var record = results.data[i];
+                if (type === "language") {
+                    var objectStoreData = {
+                        geoname_id: record["geoname_id"],
+                        continent_code: record["continent_code"],
+                        continent_name: record["continent_name"],
+                        country_iso_code: record["country_iso_code"],
+                        country_name: record["country_name"],
+                    };
+
+                } else if (type === "ipv4") {
+                    var subnet = record["network"].split("/");
+                    var prefix = subnet[1];
+                    var ip = subnet[0];
+                    var info = IpSubnetCalculator.calculateSubnetMask( ip, prefix );
+
+                    var objectStoreData = {
+                        min_ip: info["ipLow"],
+                        max_ip: info["ipHigh"],
+                        geoname_id: record["geoname_id"]
+                    };
+
+                } else {
+                    network = record["network"].split("/")
+                    var objectStoreData = {
+                        ip: network[0],
+                        prefix: network[1],
+                        geoname_id: record["geoname_id"]
+                    };
+                }
+                var objectStoreRequest = transaction.add(objectStoreData);
+            }
+        }
+    });
+}
+
 // Get host from url
 function getHost(url) {
     var host;
@@ -72,6 +182,12 @@ function fileExists(url) {
     xhr.send();
 }
 
+// Convert IP into number
+function ipv4ToNumber(ip) {
+    var d = ip.split('.');
+    return ((((((+d[0])*256)+(+d[1]))*256)+(+d[2]))*256)+(+d[3]);
+}
+
 // Get IP
 chrome.webRequest.onResponseStarted.addListener(function (info) {
 
@@ -97,78 +213,63 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 
             // Select correct database
             if (ipaddr.IPv4.isValid(ip)) {
-                var database = "GeoLite2-Country-Blocks-IPv4.csv";
+                var databaseN = "IPv4";
+                var int_ip = ipv4ToNumber(ip);
 
             } else {
-                var database = "GeoLite2-Country-Blocks-IPv6.csv";
+                var databaseN = "IPv6";
+                var int_ip = ipv6ToNumber(ip);
             }
 
-            Papa.parse("../../geolite2/" + database, {
-                header: true,
-                download: true,
-                worker: true,
-                skipEmptyLines: true,
-                fastMode: true,
-                complete: function (results) {
+            var database2 = indexedDB.open("GeoFlag", 201504);
+            database2.onsuccess = function (event) {
+                var db = event.target.result;
+                var store = db.transaction([databaseN], "readonly").objectStore(databaseN);
 
-                    var addr = ipaddr.parse(ip);
-                    var geoname_id;
+                store.openCursor().onsuccess = function(evt) {
+                    var cursor = evt.target.result;
+                    if (cursor) {
 
-                    results.data.forEach(function (country) {
+                        if (int_ip >= cursor.value["min_ip"] & int_ip <= cursor.value["max_ip"]) {
+                            geoname_id = cursor.value["geoname_id"];
+                            // Get correct country database locale
+                            var ui_locale = chrome.i18n.getUILanguage();
+                            if (languages[ui_locale]) {
+                                var locale = ui_locale;
+                            } else {
+                                var locale = "en";
+                            }
 
-                        // If row contains ip
-                        var split = country["network"].split('/');
-                        var range = ipaddr.parse(split[0]);
-                        if (addr.match(range, split[1])) {
+                            var database = indexedDB.open("GeoFlag", 201504);
+                            database.onsuccess = function (event) {
+                                var db = event.target.result;
+                                var store = db.transaction([locale], "readonly").objectStore(locale);
+                                store.get(geoname_id).onsuccess = function(event) {
+                                    var employee = event.target.result;
+                                    if (employee !== null) {
 
-                            // Get geoname_id from row
-                            geoname_id = country["geoname_id"];
+                                        // Store information
+                                        if (employee["country_iso_code"]) {
+                                            currentCodeList[host] = employee["country_iso_code"].toLowerCase();
+                                            currentCountryList[host] = employee["country_name"].replace(/"/g, "");
+                                        } else {
+                                            currentCodeList[host] = employee["continent_code"].toLowerCase();
+                                            currentCountryList[host] = employee["continent_name"].replace(/"/g, "");
+                                        }
 
-                        }
-
-                    });
-
-                    var ui_locale = chrome.i18n.getUILanguage().replace("_", "-");
-
-                    // Get correct country database locale
-                    if (fileExists("../../geolite2/GeoLite2-Country-Locations-" + ui_locale + ".csv")) {
-                        var locale = ui_locale;
-                    } else {
-                        var locale = "en";
-                    }
-
-                    Papa.parse("../../geolite2/GeoLite2-Country-Locations-" + locale + ".csv", {
-                        header: true,
-                        download: true,
-                        worker: true,
-                        skipEmptyLines: true,
-                        fastMode: true,
-                        complete: function (results) {
-
-                            results.data.forEach(function (country) {
-
-                                // If row contains geoname_id
-                                if (country["geoname_id"] === geoname_id) {
-
-                                    // Store information
-                                    if (country["country_iso_code"]) {
-                                        currentCodeList[host] = country["country_iso_code"].toLowerCase();
-                                        currentCountryList[host] = country["country_name"].replace(/"/g, "");
-                                    } else {
-                                        currentCodeList[host] = country["continent_code"].toLowerCase();
-                                        currentCountryList[host] = country["continent_name"].replace(/"/g, "");
+                                        // Display country information in address bar
+                                        showFlag(info.tabId, host);
                                     }
+                                };
 
-                                    // Display country information in address bar
-                                    showFlag(info.tabId, host);
-                                }
-                            });
-
+                            }
+                        } else {
+                            cursor.continue();
                         }
+                    }
+                };
+            }
 
-                    });
-                }
-            });
 
         }
     }
