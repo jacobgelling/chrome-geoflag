@@ -1,0 +1,18 @@
+{
+    "description": {
+        "message": "Shows a flag based on the current website's server location.",
+        "description": "The description of the application, displayed in the web store."
+    },
+    "country": {
+        "message": "Country:",
+        "description": "Preceeds the country name in the popup."
+    },
+    "domain": {
+        "message": "Domain:",
+        "description": "Preceeds the domain in the popup."
+    },
+    "ip": {
+        "message": "IP:",
+        "description": "Preceeds the IP address in the popup."
+    }
+}

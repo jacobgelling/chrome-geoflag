@@ -1,0 +1,72 @@
+/* ----------------
+Global Styles
+---------------- */
+
+body {
+    min-height: 237px;
+    min-width: 250px;
+    -webkit-user-select: none;
+}
+
+span {
+    -webkit-user-select: text;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ----------------
+Information
+---------------- */
+
+#info {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#info li {
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+}
+
+/* ----------------
+Tools
+---------------- */
+
+#tools {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 6px;
+    margin-bottom: 15px;
+}
+
+#tools li a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+    padding: 6px;
+    background-color: #eee;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    transition: .2s;
+}
+
+#tools li a:hover {
+    background-color: #e6e6e6;
+    border-color: #d6d6d6;
+}
+
+#tools li a img {
+    margin-bottom: -3px;
+}
+
+#tools li {
+    margin-top: 12px;
+}
+
+#tools li:first {
+    margin-top: 0 !important;
+}
