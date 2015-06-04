@@ -1,0 +1,26 @@
+{
+  "name": "chrome-geoflag",
+  "version": "1.0.0",
+  "description": "GeoFlag is a open source [Google Chrome](https://www.google.com/chrome/browser/desktop/) extension which shows a flag in the address bar based on the current website's server location. It has a number of features which help it stand out from all the other flag extensions.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trojanspike/chrome-geoflag.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trojanspike/chrome-geoflag/issues"
+  },
+  "homepage": "https://github.com/trojanspike/chrome-geoflag#readme",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.1.0"
+  }
+}
