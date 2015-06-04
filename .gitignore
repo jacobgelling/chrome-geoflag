@@ -7,3 +7,6 @@
 ehthumbs.db
 Thumbs.db
 config.codekit
+
+node_modules/
+app/vendor/
