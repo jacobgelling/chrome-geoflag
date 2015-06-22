@@ -45,7 +45,7 @@ function loadJson(url, success, fail) {
 				return false;
 			}
     };
-    xhr.send();
+		xhr.send();
 }
 
 // Declare arrays to store IPs
@@ -57,6 +57,7 @@ var currentCodeList = {};
 chrome.extension.onMessage.addListener(function (request, sender, response){
             switch (request.type){
                 case "getIP":
+								alert()
                     var currentURL = request.url;
                     if (currentIPList[getHost(currentURL)] !== undefined) {
                         response({
@@ -118,8 +119,8 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 							var ui_locale = chrome.i18n.getUILanguage().replace("_", "-");
 
 							// Get correct country database locale
-							loadJson("geolite2/GeoLite2-Country-Locations-" + ui_locale + ".json", callback, function(){
-								loadJson("geolite2/GeoLite2-Country-Locations-en.json", callback, function(){
+							loadJson("geolite2/GeoLite2-Country-Locations-en.json", callback, function(){
+								loadJson("geolite2/GeoLite2-Country-Locations-" + ui_locale + ".json", callback, function(){
 									/* TODO - error handler & logger */
 									console.log("error #majoq458");
 								});
