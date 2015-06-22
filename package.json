@@ -1,26 +1,31 @@
 {
-  "name": "chrome-geoflag",
-  "version": "1.0.0",
-  "description": "GeoFlag is a open source [Google Chrome](https://www.google.com/chrome/browser/desktop/) extension which shows a flag in the address bar based on the current website's server location. It has a number of features which help it stand out from all the other flag extensions.",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/trojanspike/chrome-geoflag.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/trojanspike/chrome-geoflag/issues"
-  },
-  "homepage": "https://github.com/trojanspike/chrome-geoflag#readme",
+  "name": "ext-easy",
+  "version": "0.0.0",
+  "dependencies": {},
   "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-babel": "^5.1.0"
+    "grunt": "~0.4.1",
+    "grunt-contrib-copy": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.4.0",
+    "grunt-contrib-jshint": "~0.9.2",
+    "grunt-contrib-cssmin": "~0.9.0",
+    "grunt-contrib-connect": "~0.7.1",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-htmlmin": "~0.2.0",
+    "grunt-bower-install": "~1.0.0",
+    "grunt-contrib-imagemin": "~0.7.1",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-usemin": "~2.1.0",
+    "grunt-mocha": "~0.4.10",
+    "grunt-svgmin": "~0.4.0",
+    "grunt-concurrent": "~0.5.0",
+    "load-grunt-tasks": "~0.4.0",
+    "time-grunt": "~0.3.1",
+    "jshint-stylish": "~0.1.5",
+    "grunt-chrome-manifest": "~0.2.0",
+    "grunt-contrib-compress": "~0.9.1"
+  },
+  "engines": {
+    "node": ">=0.8.0"
   }
 }
