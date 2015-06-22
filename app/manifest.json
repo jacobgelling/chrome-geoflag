@@ -14,7 +14,6 @@
   "background": {
     "scripts": [
       "components/ipaddr/lib/ipaddr.js",
-      "components/papaparse/papaparse.js",
       "scripts/chromereload.js",
       "scripts/background.js"
     ]
