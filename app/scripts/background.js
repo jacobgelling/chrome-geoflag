@@ -57,7 +57,6 @@ var currentCodeList = {};
 chrome.extension.onMessage.addListener(function (request, sender, response){
             switch (request.type){
                 case "getIP":
-								alert()
                     var currentURL = request.url;
                     if (currentIPList[getHost(currentURL)] !== undefined) {
                         response({
@@ -170,74 +169,6 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 					/* TODO - error handler & logger */
 					console.log("error #jjus456");
 				});
-
-				// /*********Papa**********/ Papa.parse("geolite2/" + database, { /* http://papaparse.com/docs#config */
-        //         header: true,
-        //         download: true,
-        //         worker: true,
-				// 				encoding: "utf8",
-        //         fastMode: false,
-        //         complete: function (results) {
-				// 					console.log( results );
-        //             var addr = ipaddr.parse(ip);
-        //             var geoname_id;
-				//
-        //             results.data.forEach(function (country) {
-				//
-        //                 // If row contains ip
-        //                 var split = country["network"].split('/');
-        //                 var range = ipaddr.parse(split[0]);
-        //                 if (addr.match(range, split[1])) {
-				//
-        //                     // Get geoname_id from row
-        //                     geoname_id = country["geoname_id"];
-				//
-        //                 }
-				//
-        //             });
-				//
-        //             var ui_locale = chrome.i18n.getUILanguage().replace("_", "-");
-				//
-        //             // Get correct country database locale
-        //             if (fileExists("geolite2/GeoLite2-Country-Locations-" + ui_locale + ".csv")) {
-        //                 var locale = ui_locale;
-        //             } else {
-        //                 var locale = "en";
-        //             }
-				//
-				// 						/*********Papa**********/ Papa.parse("geolite2/GeoLite2-Country-Locations-" + locale + ".csv", {
-        //                 header: true,
-        //                 download: true,
-        //                 worker: true,
-        //                 skipEmptyLines: true,
-        //                 fastMode: true,
-        //                 complete: function (results) {
-				//
-        //                     results.data.forEach(function (country) {
-				//
-        //                         // If row contains geoname_id
-        //                         if (country["geoname_id"] === geoname_id) {
-				//
-        //                             // Store information
-        //                             if (country["country_iso_code"]) {
-        //                                 currentCodeList[host] = country["country_iso_code"].toLowerCase();
-        //                                 currentCountryList[host] = country["country_name"].replace(/"/g, "");
-        //                             } else {
-        //                                 currentCodeList[host] = country["continent_code"].toLowerCase();
-        //                                 currentCountryList[host] = country["continent_name"].replace(/"/g, "");
-        //                             }
-				//
-        //                             // Display country information in address bar
-        //                             showFlag(info.tabId, host);
-        //                         }
-        //                     });
-				//
-        //                 }
-				//
-        //             }); /*********Papa**********/
-        //         }
-        //     }); /*********Papa**********/
-
         }
     }
     return;

@@ -1,8 +1,8 @@
 {
-  "name": "GeoFlag",
-  "version": "1.0.39",
+  "name": "__MSG_description__",
+  "version": "1.0.6",
   "manifest_version": 2,
-  "description": "@_MSG_appDescription_@",
+  "description": "__MSG_description__",
   "homepage_url": "https://github.com/jacobg830/chrome-geoflag",
   "minimum_chrome_version": "37",
   "icons": {
@@ -41,6 +41,9 @@
     "tabs",
     "history",
     "<all_urls>",
-    "webRequest"
-  ]
+    "webRequest",
+    "storage",
+    "unlimitedStorage"
+  ],
+  "content_security_policy": "default-src 'self'"
 }
