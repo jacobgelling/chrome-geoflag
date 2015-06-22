@@ -42,7 +42,7 @@ function loadJson(url, success, fail) {
 			if( typeof fail === "function" ){
 				fail();
 			} else {
-				return fail;
+				return false;
 			}
     };
     xhr.send();
@@ -54,12 +54,8 @@ var currentCountryList = {};
 var currentCodeList = {};
 
 // Popup requests
-chrome.extension.onMessage.addListener(
-        function (request, sender, response)
-        {
-            switch (request.type)
-            {
-
+chrome.extension.onMessage.addListener(function (request, sender, response){
+            switch (request.type){
                 case "getIP":
                     var currentURL = request.url;
                     if (currentIPList[getHost(currentURL)] !== undefined) {
@@ -84,13 +80,11 @@ chrome.extension.onMessage.addListener(
 
 // Get IP
 chrome.webRequest.onResponseStarted.addListener(function (info) {
-
     var ip = info.ip;
     var host = getHost(info.url);
 
     // If IP is valid
     if (ipaddr.isValid(ip)) {
-
         // If IP is not the same as cached
         if (ip !== currentIPList[host]) {
             // Add IP to array
@@ -101,22 +95,54 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 
         // If no country cached
         if (!currentCountryList[host]) {
-
             // Select correct database
-            if (ipaddr.IPv4.isValid(ip)) {
-                var database = "GeoLite2-Country-Blocks-IPv4.json";
-            } else {
-                var database = "GeoLite2-Country-Blocks-IPv6.json";
-            }
+						var IPV = ( ipaddr.IPv4.isValid(ip) )?4:6;
+						var database = "GeoLite2-Country-Blocks-IPv"+IPV+".json";
 
 				/* geolite2/GeoLite2-Country-Blocks-IPv4.csv | json */
 				/* load the JSON # note - TODO : check object before un-needed load of json : */
 
+				var JsonDataParse = {
+					ParseIpv : function(json, callback){
+						var addr = ipaddr.parse(ip);
+		      	var geoname_id;
+						json.forEach(function (country) {
+	              // If row contains ip
+	              var split = country["network"].split('/');
+	              var range = ipaddr.parse(split[0]);
+	              if (addr.match(range, split[1])) {
+	                  // Get geoname_id from row
+	                  geoname_id = country["geoname_id"];
+	              }
+						});
+							var ui_locale = chrome.i18n.getUILanguage().replace("_", "-");
+
+							// Get correct country database locale
+							var locale = ( loadJson("geolite2/GeoLite2-Country-Locations-" + ui_locale + ".json") )?ui_locale:"en";
+
+							loadJson("geolite2/GeoLite2-Country-Locations-" + locale + ".json", callback, function(){
+								/* TODO - error handler & logger */
+								console.log("error #kla584a");
+							});
+
+					},
+					ParseLoc : function(json, callback){
+						callback(json);
+					}
+				};
+				/* TODO - Needs to check a pre-cache storage because most people will use the same websites */
+				/* ie. { hostname : {image,whois etc}} } */
 				loadJson("geolite2/" + database, function success(response){
 					var jsonData;
 					try{
 						jsonData = JSON.parse(response);
-						console.log(jsonData);
+						// console.log(jsonData);
+						// console.log(info);
+						JsonDataParse.ParseIpv( jsonData,  function(ParseIpvResult){
+							JsonDataParse.ParseLoc(ParseIpvResult, function(ParseLocResult){
+								console.log(ParseLocResult);
+							});
+						});
 					} catch ( e ){
 						/* TODO - error handler & logger */
 						console.log("error #nsyur5");
