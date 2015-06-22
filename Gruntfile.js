@@ -241,7 +241,7 @@ module.exports = function (grunt) {
             'styles/{,*/}*.css',
             'styles/fonts/{,*/}*.*',
             '_locales/{,*/}*.json',
-            'geolite2/*.csv' // TODO - Make into JSON formats AND/OR form an S3 bucket
+            'geolite2/*.json' // TODO - get form an S3 bucket ?
           ]
         }]
       }
