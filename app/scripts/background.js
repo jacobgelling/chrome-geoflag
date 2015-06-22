@@ -101,11 +101,11 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 
 				/* geolite2/GeoLite2-Country-Blocks-IPv4.csv | json */
 				/* load the JSON # note - TODO : check object before un-needed load of json : */
-
+				var geoname_id;
 				var JsonDataParse = {
 					ParseIpv : function(json, callback){
 						var addr = ipaddr.parse(ip);
-		      	var geoname_id;
+
 						json.forEach(function (country) {
 	              // If row contains ip
 	              var split = country["network"].split('/');
@@ -118,30 +118,48 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 							var ui_locale = chrome.i18n.getUILanguage().replace("_", "-");
 
 							// Get correct country database locale
-							var locale = ( loadJson("geolite2/GeoLite2-Country-Locations-" + ui_locale + ".json") )?ui_locale:"en";
-
-							loadJson("geolite2/GeoLite2-Country-Locations-" + locale + ".json", callback, function(){
-								/* TODO - error handler & logger */
-								console.log("error #kla584a");
+							loadJson("geolite2/GeoLite2-Country-Locations-" + ui_locale + ".json", callback, function(){
+								loadJson("geolite2/GeoLite2-Country-Locations-en.json", callback, function(){
+									/* TODO - error handler & logger */
+									console.log("error #majoq458");
+								});
 							});
 
 					},
-					ParseLoc : function(json, callback){
-						callback(json);
+					ParseLoc : function(json){
+						json.forEach(function (country) {
+	              // If row contains geoname_id
+	              if (country["geoname_id"] === geoname_id) {
+	                  // Store information
+	                  if (country["country_iso_code"]) {
+	                      currentCodeList[host] = country["country_iso_code"].toLowerCase();
+	                      currentCountryList[host] = country["country_name"].replace(/"/g, "");
+	                  } else {
+	                      currentCodeList[host] = country["continent_code"].toLowerCase();
+	                      currentCountryList[host] = country["continent_name"].replace(/"/g, "");
+	                  }
+
+	                  // Display country information in address bar
+										return showFlag(info.tabId, host);
+	              }
+	          });
 					}
 				};
 				/* TODO - Needs to check a pre-cache storage because most people will use the same websites */
 				/* ie. { hostname : {image,whois etc}} } */
 				loadJson("geolite2/" + database, function success(response){
-					var jsonData;
+					var jsonData = null;
 					try{
 						jsonData = JSON.parse(response);
-						// console.log(jsonData);
-						// console.log(info);
 						JsonDataParse.ParseIpv( jsonData,  function(ParseIpvResult){
-							JsonDataParse.ParseLoc(ParseIpvResult, function(ParseLocResult){
-								console.log(ParseLocResult);
-							});
+							var jsonIpv = null;
+							try {
+								jsonIpv = JSON.parse(ParseIpvResult);
+							} catch ( e ){
+								/* TODO - error handler & logger */
+								console.log("error #hya59q");
+							}
+							JsonDataParse.ParseLoc(jsonIpv);
 						});
 					} catch ( e ){
 						/* TODO - error handler & logger */
