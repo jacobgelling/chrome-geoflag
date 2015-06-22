@@ -18,6 +18,17 @@ GeoFlag is a open source [Google Chrome](https://www.google.com/chrome/browser/d
 
 Alternatively you can download the GeoFlag extension from https://github.com/jacobg830/chrome-geoflag/releases and install it manually.
 
+### Contributing
+GeoFlag is using yeoman scaffolding , bower & grunt as task runners. Starting you need to get the required packages for node & bower.
+
+```bash
+$ npm install && bower install 
+# Run grunt debug - this runs a reload task 
+$ grunt debug # note that the loaded extension path should be /chrome-geoflag/app/
+# Happy with the changes ? Now to build the extension for release
+$ grunt build
+```
+
 ### License
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
