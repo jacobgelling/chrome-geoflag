@@ -1,20 +1,8 @@
 {
-  "name": "chrome-geoflag",
-  "version": "1.0.2",
-  "homepage": "https://github.com/trojanspike/chrome-geoflag",
-  "authors": [
-    "trojanspike <v3047-github@yahoo.co.uk>"
-  ],
-  "license": "MIT",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
+  "name": "ext-easy",
+  "version": "0.0.0",
   "dependencies": {
-    "ipaddr": "~1.0.2",
-    "papaparse": "~4.1.1"
-  }
+    "ipaddr": "~1.0.2"
+  },
+  "devDependencies": {}
 }
