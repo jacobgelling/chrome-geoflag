@@ -1,6 +1,6 @@
 // Get host from url
 function getHost(url) {
-    var host;
+	var host;
     if (url.indexOf("://") > -1) {
         host = url.split('/')[2];
     }
@@ -17,10 +17,10 @@ function hideElement(id) {
 }
 
 // Change a element's text by ID (and class)
-function changeElementText(content, id, class) {
+function changeElementText(content, id, _class) {
     var el = document.getElementById(id);
-    if (class) {
-        el = el.getElementsByClassName(class)[0]
+    if (_class) {
+        el = el.getElementsByClassName(_class)[0]
     }
     el.innerText = content;
 }

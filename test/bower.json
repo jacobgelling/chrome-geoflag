@@ -1,8 +1,9 @@
 {
   "name": "ext-easy",
-  "version": "0.0.0",
+  "private": true,
   "dependencies": {
-    "ipaddr": "~1.0.2"
+    "chai": "~1.8.0",
+    "mocha": "~1.14.0"
   },
   "devDependencies": {}
 }
