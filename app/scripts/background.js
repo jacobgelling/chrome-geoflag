@@ -1,9 +1,14 @@
-"use strict";
+'use strict';
+
+// Declare arrays to store IPs
+var currentIPList = {};
+var currentCountryList = {};
+var currentCodeList = {};
 
 // Get host from url
 function getHost(url) {
 	var host;
-    if (url.indexOf("://") > -1) {
+    if (url.indexOf('://') > -1) {
         host = url.split('/')[2];
     }
     else {
@@ -15,13 +20,11 @@ function getHost(url) {
 
 // Display country information in address bar
 function showFlag(tabId, host) {
-    chrome.pageAction.setIcon({tabId: tabId, path: "img/flags/" + currentCodeList[host] + ".png"});
+    chrome.pageAction.setIcon({tabId: tabId, path: 'img/flags/' + currentCodeList[host] + '.png'});
     chrome.pageAction.show(tabId);
-    var title = currentCountryList[host] + "\n\
-";
+    var title = currentCountryList[host] + '\n\n';
     if (currentIPList[host] !== host) {
-        title += host + "\n\
-";
+        title += host + '\n\n';
     }
     title += currentIPList[host];
     chrome.pageAction.setTitle({tabId: tabId, title: title});
@@ -32,14 +35,14 @@ function loadJson(url, success, fail) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.onload = function (e) {
-			if( typeof success === "function" ){
+			if( typeof success === 'function' ){
 				success( e.target.response );
 			} else {
         return true;
 			}
     };
-    xhr.onerror = function (e) {
-			if( typeof fail === "function" ){
+    xhr.onerror = function () {
+			if( typeof fail === 'function' ){
 				fail();
 			} else {
 				return false;
@@ -48,15 +51,10 @@ function loadJson(url, success, fail) {
 		xhr.send();
 }
 
-// Declare arrays to store IPs
-var currentIPList = {};
-var currentCountryList = {};
-var currentCodeList = {};
-
 // Popup requests
 chrome.extension.onMessage.addListener(function (request, sender, response){
             switch (request.type){
-                case "getIP":
+                case 'getIP':
                     var currentURL = request.url;
                     if (currentIPList[getHost(currentURL)] !== undefined) {
                         response({
@@ -65,8 +63,8 @@ chrome.extension.onMessage.addListener(function (request, sender, response){
                         });
                     } else {
                         response({
-                            domainToIP: "Unknown",
-                            domainToCountry: "Unknown"
+                            domainToIP: 'Unknown',
+                            domainToCountry: 'Unknown'
                         });
                     }
 
@@ -97,31 +95,31 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
         if (!currentCountryList[host]) {
             // Select correct database
 						var IPV = ( ipaddr.IPv4.isValid(ip) )?4:6;
-						var database = "GeoLite2-Country-Blocks-IPv"+IPV+".json";
+						var database = 'GeoLite2-Country-Blocks-IPv'+IPV+'.json';
 
 				/* geolite2/GeoLite2-Country-Blocks-IPv4.csv | json */
 				/* load the JSON # note - TODO : check object before un-needed load of json : */
-				var geoname_id;
+				var geonameId;
 				var JsonDataParse = {
 					ParseIpv : function(json, callback){
 						var addr = ipaddr.parse(ip);
 
 						json.forEach(function (country) {
 	              // If row contains ip
-	              var split = country["network"].split('/');
+	              var split = country['network'].split('/');
 	              var range = ipaddr.parse(split[0]);
 	              if (addr.match(range, split[1])) {
 	                  // Get geoname_id from row
-	                  geoname_id = country["geoname_id"];
+	                  geonameId = country['geoname_id'];
 	              }
 						});
-							var ui_locale = chrome.i18n.getUILanguage().replace("_", "-");
+							var uiLocale = chrome.i18n.getUILanguage().replace('_', '-');
 
 							// Get correct country database locale
-							loadJson("geolite2/GeoLite2-Country-Locations-en.json", callback, function(){
-								loadJson("geolite2/GeoLite2-Country-Locations-" + ui_locale + ".json", callback, function(){
+							loadJson('geolite2/GeoLite2-Country-Locations-en.json', callback, function(){
+								loadJson('geolite2/GeoLite2-Country-Locations-' + uiLocale + '.json', callback, function(){
 									/* TODO - error handler & logger */
-									console.log("error #majoq458");
+									console.log('error #majoq458');
 								});
 							});
 
@@ -129,14 +127,14 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 					ParseLoc : function(json){
 						json.forEach(function (country) {
 	              // If row contains geoname_id
-	              if (country["geoname_id"] === geoname_id) {
+	              if (country['geoname_id'] === geonameId) {
 	                  // Store information
-	                  if (country["country_iso_code"]) {
-	                      currentCodeList[host] = country["country_iso_code"].toLowerCase();
-	                      currentCountryList[host] = country["country_name"].replace(/"/g, "");
+	                  if (country['country_iso_code']) {
+	                      currentCodeList[host] = country['country_iso_code'].toLowerCase();
+	                      currentCountryList[host] = country['country_name'].replace(/'/g, '');
 	                  } else {
-	                      currentCodeList[host] = country["continent_code"].toLowerCase();
-	                      currentCountryList[host] = country["continent_name"].replace(/"/g, "");
+	                      currentCodeList[host] = country['continent_code'].toLowerCase();
+	                      currentCountryList[host] = country['continent_name'].replace(/'/g, '');
 	                  }
 
 	                  // Display country information in address bar
@@ -147,7 +145,7 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 				};
 				/* TODO - Needs to check a pre-cache storage because most people will use the same websites */
 				/* ie. { hostname : {image,whois etc}} } */
-				loadJson("geolite2/" + database, function success(response){
+				loadJson('geolite2/' + database, function success(response){
 					var jsonData = null;
 					try{
 						jsonData = JSON.parse(response);
@@ -157,29 +155,29 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 								jsonIpv = JSON.parse(ParseIpvResult);
 							} catch ( e ){
 								/* TODO - error handler & logger */
-								console.log("error #hya59q");
+								console.log('error #hya59q');
 							}
 							JsonDataParse.ParseLoc(jsonIpv);
 						});
 					} catch ( e ){
 						/* TODO - error handler & logger */
-						console.log("error #nsyur5");
+						console.log('error #nsyur5');
 					}
 				} , function fail(){
 					/* TODO - error handler & logger */
-					console.log("error #jjus456");
+					console.log('error #jjus456');
 				});
         }
     }
     return;
 }, {
-    urls: ["<all_urls>"],
-    types: ["main_frame"]
+    urls: ['<all_urls>'],
+    types: ['main_frame']
 }, []);
 
 // Listen for any changes to the URL of any tab
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    if (!chrome.runtime.lastError && typeof currentCodeList[getHost(tab.url)] !== "undefined")
+    if (!chrome.runtime.lastError && typeof currentCodeList[getHost(tab.url)] !== 'undefined')
     {
         // Display country information in address bar
         showFlag(tabId, getHost(tab.url));
