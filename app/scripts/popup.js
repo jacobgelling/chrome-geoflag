@@ -29,7 +29,7 @@ function changeElementText(content, id, _class) {
 
 // Get active tab information
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-    url = tabs[0].url;
+    var url = tabs[0].url;
     chrome.extension.sendMessage({type: 'getIP', url: url}, function (response) {
 
         var ip = response.domainToIP;
