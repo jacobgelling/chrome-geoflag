@@ -28,10 +28,6 @@ module.exports = function (grunt) {
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
-      bower: {
-        files: ['bower.json'],
-        tasks: ['bowerInstall']
-      },
       js: {
         files: ['<%= config.app %>/scripts/{,*/}*.js'],
         tasks: ['jshint'],
@@ -127,10 +123,10 @@ module.exports = function (grunt) {
     },
 
     // Automatically inject Bower components into the HTML file
-    bowerInstall: {
+    wiredep: {
       app: {
         src: [
-          '<%= config.app %>/*.html'
+          '<%= config.app %>/background.html'
         ]
       }
     },
@@ -144,7 +140,8 @@ module.exports = function (grunt) {
       },
       html: [
         '<%= config.app %>/popup.html',
-        '<%= config.app %>/options.html'
+        '<%= config.app %>/options.html',
+        '<%= config.app %>/background.html'
       ]
     },
 
@@ -263,7 +260,7 @@ module.exports = function (grunt) {
     chromeManifest: {
       dist: {
         options: {
-          buildnumber: true,
+          buildnumber: false,
           indentSize: 2,
           background: {
             target: 'scripts/background.js',
