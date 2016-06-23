@@ -315,7 +315,7 @@ module.exports = function (grunt) {
     'chromeManifest:dist',
     'useminPrepare',
     'concurrent:dist',
-    'cssmin',
+    //'cssmin',
     'concat',
     'uglify',
     'copy',
