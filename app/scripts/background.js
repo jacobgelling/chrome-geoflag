@@ -116,8 +116,8 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 							var uiLocale = chrome.i18n.getUILanguage().replace('_', '-');
 
 							// Get correct country database locale
-							loadJson('geolite2/GeoLite2-Country-Locations-en.json', callback, function(){
-								loadJson('geolite2/GeoLite2-Country-Locations-' + uiLocale + '.json', callback, function(){
+              loadJson("geolite2/GeoLite2-Country-Locations-" + uiLocale + ".json", callback, function(){
+                loadJson("geolite2/GeoLite2-Country-Locations-en.json", callback, function(){
 									/* TODO - error handler & logger */
 									console.log('error #majoq458');
 								});
