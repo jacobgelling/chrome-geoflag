@@ -1,4 +1,4 @@
-// Generated on 2015-06-22 using generator-chrome-extension 0.3.1
+
 'use strict';
 
 // # Globbing
@@ -131,6 +131,79 @@ module.exports = function (grunt) {
       }
     },
 
+    convert: {
+      blocks: {
+        options: {
+          csv: {
+            columns: [
+              'network',
+              'geoname_id'
+            ]
+          }
+        },
+        files: [
+          {
+            expand: true,
+            cwd: '<%= config.app %>/geolite2/',
+            src: ['GeoLite2-Country-Blocks-*.csv'],
+            dest: '<%= config.dist %>/geolite2/',
+            ext: '.json'
+          }
+        ]
+      },
+      locations: {
+        files: [
+          {
+            expand: true,
+            cwd: '<%= config.app %>/geolite2/',
+            src: ['GeoLite2-Country-Locations-*.csv'],
+            dest: '<%= config.dist %>/geolite2/',
+            ext: '.json'
+          }
+        ]
+      }
+    },
+
+    minjson: {
+      compile: {
+        files: { // Does not support folders as destination
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-IPv4.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-IPv4.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-IPv6.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-IPv6.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-de.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-de.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-en.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-en.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-es.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-es.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-fr.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-fr.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ja.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ja.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-pt-BR.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-pt-BR.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ru.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ru.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-zh-CN.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-zh-CN.json'
+        }
+      }
+    },
+
+    'string-replace': {
+      blocks: {
+        src: '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-*.json',
+        dest: '<%= config.dist %>/geolite2/',
+        options: {
+          replacements: [{
+            pattern: /."network":"network","geoname_id":"geoname_id".,/,
+            replacement: ''
+          }]
+        }
+      },
+      locations: {
+        src: '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-*.json',
+        dest: '<%= config.dist %>/geolite2/',
+        options: {
+          replacements: [{
+            pattern: /"locale_code":"en",/g,
+            replacement: ''
+          }]
+        }
+      }
+    },
+
     // Reads HTML for usemin blocks to enable smart builds that automatically
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
@@ -238,7 +311,6 @@ module.exports = function (grunt) {
             'styles/{,*/}*.css',
             'styles/fonts/{,*/}*.*',
             '_locales/{,*/}*.json',
-            'geolite2/*.json' // TODO - get form an S3 bucket ?
           ]
         }]
       }
@@ -313,6 +385,9 @@ module.exports = function (grunt) {
     'useminPrepare',
     'concurrent:dist',
     //'cssmin',
+    'convert',
+    'minjson',
+    'string-replace',
     'concat',
     'uglify',
     'copy',
