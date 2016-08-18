@@ -21,9 +21,9 @@ function getHost(url) {
 function showFlag(tabId, host) {
   chrome.pageAction.setIcon({tabId: tabId, path: 'img/flags/' + currentCodeList[host] + '.png'});
   chrome.pageAction.show(tabId);
-  var title = currentCountryList[host] + '\n\n';
+  var title = currentCountryList[host] + '\n';
   if (currentIPList[host] !== host) {
-    title += host + '\n\n';
+    title += host + '\n';
   }
   title += currentIPList[host];
   chrome.pageAction.setTitle({tabId: tabId, title: title});
