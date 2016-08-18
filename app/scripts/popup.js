@@ -61,7 +61,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       }
 
       // Create tool links
-      document.getElementById('geotool').href = 'http://geoip.flagfox.net/?ip=' + ip + '&host=' + host;
+      document.getElementById('geotool').href = 'https://iplookup.flagfox.net/?ip=' + ip + '&host=' + host;
       document.getElementById('whois').href = 'https://whois.domaintools.com/' + host;
       document.getElementById('wot').href = 'https://www.mywot.com/scorecard/' + host;
       document.getElementById('ssltest').href = 'https://www.ssllabs.com/ssltest/analyze.html?d=' + host + '&s=' + ip;
