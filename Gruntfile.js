@@ -98,6 +98,14 @@ module.exports = function (grunt) {
             '!<%= config.dist %>/.git*'
           ]
         }]
+      },
+      tmp: {
+        files: [{
+          dot: true,
+          src: [
+            '.tmp'
+          ]
+        }]
       }
     },
 
@@ -151,7 +159,7 @@ module.exports = function (grunt) {
           }
         },
         src: '.tmp/geolite2.zip',
-        dest: '<%= config.dist %>/geolite2/',
+        dest: '.tmp/geolite2/',
       }
     },
 
@@ -168,7 +176,7 @@ module.exports = function (grunt) {
         files: [
           {
             expand: true,
-            cwd: '<%= config.dist %>/geolite2/',
+            cwd: '.tmp/geolite2/',
             src: ['GeoLite2-Country-Blocks-*.csv'],
             dest: '<%= config.dist %>/geolite2/',
             ext: '.json'
@@ -179,7 +187,7 @@ module.exports = function (grunt) {
         files: [
           {
             expand: true,
-            cwd: '<%= config.dist %>/geolite2/',
+            cwd: '.tmp/geolite2/',
             src: ['GeoLite2-Country-Locations-*.csv'],
             dest: '<%= config.dist %>/geolite2/',
             ext: '.json'
@@ -257,7 +265,6 @@ module.exports = function (grunt) {
       },
       html: [
         '<%= config.app %>/popup.html',
-        '<%= config.app %>/options.html',
         '<%= config.app %>/background.html'
       ]
     },
@@ -438,7 +445,8 @@ module.exports = function (grunt) {
     'uglify',
     'copy',
     'usemin',
-    'compress'
+    'compress',
+    'clean:tmp'
   ]);
 
   grunt.registerTask('default', [

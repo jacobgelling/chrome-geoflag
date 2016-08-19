@@ -20,7 +20,6 @@
     "default_title": "GeoFlag",
     "default_popup": "popup.html"
   },
-  "options_page": "options.html",
   "permissions": [
     "tabs",
     "history",
