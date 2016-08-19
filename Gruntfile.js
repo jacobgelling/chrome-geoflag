@@ -1,4 +1,3 @@
-
 'use strict';
 
 // # Globbing
@@ -20,6 +19,8 @@ module.exports = function (grunt) {
     app: 'app',
     dist: 'dist'
   };
+
+  var path = require('path');
 
   grunt.initConfig({
 
@@ -131,6 +132,29 @@ module.exports = function (grunt) {
       }
     },
 
+    curl: {
+      geolite2: {
+        src: 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country-CSV.zip',
+        dest: '.tmp/geolite2.zip',
+      }
+    },
+
+    unzip: {
+      geolite2: {
+        router: function (filepath) {
+          var extname = path.extname(filepath);
+
+          if (extname === '.csv') {
+            return path.basename(filepath);
+          } else {
+            return null;
+          }
+        },
+        src: '.tmp/geolite2.zip',
+        dest: '<%= config.dist %>/geolite2/',
+      }
+    },
+
     convert: {
       blocks: {
         options: {
@@ -144,7 +168,7 @@ module.exports = function (grunt) {
         files: [
           {
             expand: true,
-            cwd: '<%= config.app %>/geolite2/',
+            cwd: '<%= config.dist %>/geolite2/',
             src: ['GeoLite2-Country-Blocks-*.csv'],
             dest: '<%= config.dist %>/geolite2/',
             ext: '.json'
@@ -155,7 +179,7 @@ module.exports = function (grunt) {
         files: [
           {
             expand: true,
-            cwd: '<%= config.app %>/geolite2/',
+            cwd: '<%= config.dist %>/geolite2/',
             src: ['GeoLite2-Country-Locations-*.csv'],
             dest: '<%= config.dist %>/geolite2/',
             ext: '.json'
@@ -384,6 +408,8 @@ module.exports = function (grunt) {
     'chromeManifest:dist',
     'useminPrepare',
     'concurrent:dist',
+    'curl',
+    'unzip',
     //'cssmin',
     'convert',
     'minjson',
