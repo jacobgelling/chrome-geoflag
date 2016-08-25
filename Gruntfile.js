@@ -210,20 +210,40 @@ module.exports = function (grunt) {
         src: '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-*.json',
         dest: '<%= config.dist %>/geolite2/',
         options: {
-          replacements: [{
-            pattern: /."network":"network","geoname_id":"geoname_id".,/,
-            replacement: ''
-          }]
+          replacements: [
+            {
+              pattern: /."network":"network","geoname_id":"geoname_id".,/,
+              replacement: ''
+            },
+            {
+              pattern: /"network":/g,
+              replacement: '"ip":'
+            },
+            {
+              pattern: /"geoname_id":/g,
+              replacement: '"id":'
+            }
+          ]
         }
       },
       locations: {
         src: '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-*.json',
         dest: '<%= config.dist %>/geolite2/',
         options: {
-          replacements: [{
-            pattern: /"locale_code":"en",/g,
-            replacement: ''
-          }]
+          replacements: [
+            {
+              pattern: /"locale_code":"en",/g,
+              replacement: ''
+            },
+            {
+              pattern: /"geoname_id":/g,
+              replacement: '"id":'
+            },
+            {
+              pattern: /"country_iso_code":/g,
+              replacement: '"country_code":'
+            }
+          ]
         }
       }
     },

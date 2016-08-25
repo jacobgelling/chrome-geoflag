@@ -104,11 +104,11 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
 
           json.forEach(function (country) {
             // If row contains ip
-            var split = country['network'].split('/');
+            var split = country['ip'].split('/');
             var range = ipaddr.parse(split[0]);
             if (addr.match(range, split[1])) {
               // Get geoname_id from row
-              geonameId = country['geoname_id'];
+              geonameId = country['id'];
             }
           });
           var uiLocale = chrome.i18n.getUILanguage().replace('_', '-');
@@ -124,10 +124,10 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
         ParseLoc : function(json) {
           json.forEach(function (country) {
             // If row contains geoname_id
-            if (country['geoname_id'] === geonameId) {
+            if (country['id'] === geonameId) {
               // Store information
-              if (country['country_iso_code']) {
-                currentCodeList[host] = country['country_iso_code'].toLowerCase();
+              if (country['country_code']) {
+                currentCodeList[host] = country['country_code'].toLowerCase();
                 currentCountryList[host] = country['country_name'].replace(/'/g, '');
               } else {
                 currentCodeList[host] = country['continent_code'].toLowerCase();
