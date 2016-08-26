@@ -251,7 +251,7 @@ module.exports = function (grunt) {
         options: {
           replacements: [
             {
-              pattern: /"locale_code":"en",/g,
+              pattern: /"locale_code":"(.*?)",/g,
               replacement: ''
             },
             {
@@ -259,8 +259,8 @@ module.exports = function (grunt) {
               replacement: '"id":'
             },
             {
-              pattern: /"country_iso_code":/g,
-              replacement: '"country_code":'
+              pattern: /"continent_code":"(.*?)","continent_name":"(.*?)","country_iso_code":"(.*?)","country_name":"(.*?)"/g,
+              replacement: '"continent":{"code":"$1","name":"$2"},"country":{"code":"$3","name":"$4"}'
             }
           ]
         }
