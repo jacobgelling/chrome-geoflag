@@ -1,11 +1,5 @@
 'use strict';
 
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
-
 module.exports = function (grunt) {
 
   // Load grunt tasks automatically
@@ -74,19 +68,10 @@ module.exports = function (grunt) {
             '<%= config.app %>'
           ]
         }
-      },
-      test: {
-        options: {
-          open: false,
-          base: [
-            'test',
-            '<%= config.app %>'
-          ]
-        }
       }
     },
 
-    // Empties folders to start fresh
+    // Empties folders
     clean: {
       chrome: {
       },
@@ -110,6 +95,7 @@ module.exports = function (grunt) {
       }
     },
 
+    // Import required nodejs modules
     browserify: {
       build: {
         src: ['<%= config.app %>/scripts/background.js'],
@@ -129,8 +115,6 @@ module.exports = function (grunt) {
       all: [
         'Gruntfile.js',
         '<%= config.app %>/scripts/{,*/}*.js',
-        '!<%= config.app %>/scripts/vendor/*',
-        'test/spec/{,*/}*.js'
       ]
     },
     mocha: {
@@ -142,22 +126,13 @@ module.exports = function (grunt) {
       }
     },
 
-    // Automatically inject Bower components into the HTML file
-    wiredep: {
-      app: {
-        src: [
-          '<%= config.app %>/background.html'
-        ]
-      }
-    },
-
+    // Download GeoLite2 to temporary folder
     curl: {
       geolite2: {
         src: 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country-CSV.zip',
         dest: '.tmp/geolite2.zip',
       }
     },
-
     unzip: {
       geolite2: {
         router: function (filepath) {
@@ -174,6 +149,7 @@ module.exports = function (grunt) {
       }
     },
 
+    // Convert CSV to JSON
     convert: {
       blocks: {
         options: {
@@ -207,6 +183,7 @@ module.exports = function (grunt) {
       }
     },
 
+    // Minimize JSON
     minjson: {
       compile: {
         files: { // Does not support folders as destination
@@ -224,6 +201,7 @@ module.exports = function (grunt) {
       }
     },
 
+    // Optimize JSON
     'string-replace': {
       blocks: {
         src: '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-*.json',
@@ -279,7 +257,6 @@ module.exports = function (grunt) {
         '<%= config.app %>/background.html'
       ]
     },
-
     // Performs rewrites based on rev and the useminPrepare configuration
     usemin: {
       options: {
@@ -288,7 +265,6 @@ module.exports = function (grunt) {
       html: ['<%= config.dist %>/{,*/}*.html'],
       css: ['<%= config.dist %>/styles/{,*/}*.css']
     },
-
     // The following *-min tasks produce minifies files in the dist folder
     imagemin: {
       dist: {
@@ -300,7 +276,6 @@ module.exports = function (grunt) {
         }]
       }
     },
-
     svgmin: {
       dist: {
         files: [{
@@ -311,7 +286,6 @@ module.exports = function (grunt) {
         }]
       }
     },
-
     htmlmin: {
       dist: {
         options: {
@@ -333,31 +307,6 @@ module.exports = function (grunt) {
       }
     },
 
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= config.dist %>/styles/main.css': [
-    //         '<%= config.app %>/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-    // uglify: {
-    //   dist: {
-    //     files: {
-    //       '<%= config.dist %>/scripts/scripts.js': [
-    //         '<%= config.dist %>/scripts/scripts.js'
-    //       ]
-    //     }
-    //   }
-    // },
-    // concat: {
-    //   dist: {}
-    // },
-
     // Copies remaining files to places other tasks can use
     copy: {
       dist: {
@@ -378,18 +327,6 @@ module.exports = function (grunt) {
       }
     },
 
-    // Run some tasks in parallel to speed up build process
-    concurrent: {
-      chrome: [
-      ],
-      dist: [
-        'imagemin',
-        'svgmin'
-      ],
-      test: [
-      ]
-    },
-
     // Auto buildnumber, exclude debug files. smart builds that event pages
     chromeManifest: {
       dist: {
@@ -397,7 +334,7 @@ module.exports = function (grunt) {
           buildnumber: false,
           indentSize: 2,
           background: {
-            target: 'scripts/background.js',
+            target: 'scripts/background2.js',
             exclude: [
               'scripts/chromereload.js'
             ]
@@ -406,47 +343,24 @@ module.exports = function (grunt) {
         src: '<%= config.app %>',
         dest: '<%= config.dist %>'
       }
-    },
-
-    // Compres dist files to package
-    compress: {
-      dist: {
-        options: {
-          archive: function() {
-            var manifest = grunt.file.readJSON('app/manifest.json');
-            return 'package/ext easy-' + manifest.version + '.zip';
-          }
-        },
-        files: [{
-          expand: true,
-          cwd: 'dist/',
-          src: ['**'],
-          dest: ''
-        }]
-      }
     }
   });
 
   grunt.registerTask('debug', function () {
     grunt.task.run([
       'jshint',
-      'concurrent:chrome',
       'connect:chrome',
       'watch'
     ]);
   });
-
-  grunt.registerTask('test', [
-    'connect:test',
-    'mocha'
-  ]);
 
   grunt.registerTask('build', [
     'clean:dist',
     'browserify',
     'chromeManifest:dist',
     'useminPrepare',
-    'concurrent:dist',
+    'imagemin',
+    'svgmin',
     'curl',
     'unzip',
     //'cssmin',
@@ -457,13 +371,11 @@ module.exports = function (grunt) {
     'uglify',
     'copy',
     'usemin',
-    'compress',
     'clean:tmp'
   ]);
 
   grunt.registerTask('default', [
     'jshint',
-    'test',
     'build'
   ]);
 };
