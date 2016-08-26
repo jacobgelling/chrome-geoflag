@@ -103,9 +103,20 @@ module.exports = function (grunt) {
         files: [{
           dot: true,
           src: [
-            '.tmp'
+            '.tmp',
+            '<%= config.app %>/scripts/background2.js'
           ]
         }]
+      }
+    },
+
+    browserify: {
+      build: {
+        src: ['<%= config.app %>/scripts/background.js'],
+        dest: '<%= config.app %>/scripts/background2.js',
+        options: {
+          debug: true
+        }
       }
     },
 
@@ -432,6 +443,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', [
     'clean:dist',
+    'browserify',
     'chromeManifest:dist',
     'useminPrepare',
     'concurrent:dist',

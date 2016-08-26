@@ -1,9 +1,12 @@
 {
   "name": "ext-easy",
   "version": "0.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "ipaddr.js": "^1.2.0"
+  },
   "devDependencies": {
     "grunt": "~1.0.1",
+    "grunt-browserify": "^5.0.0",
     "grunt-chrome-manifest": "~0.3.0",
     "grunt-concurrent": "~2.3.0",
     "grunt-contrib-clean": "~1.0.0",

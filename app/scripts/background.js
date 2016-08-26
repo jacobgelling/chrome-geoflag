@@ -1,5 +1,7 @@
 'use strict';
 
+var ipaddr = require('ipaddr.js');
+
 // Declare arrays to store IPs
 var currentIPList = {};
 var currentCountryList = {};
