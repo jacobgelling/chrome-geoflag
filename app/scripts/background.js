@@ -113,7 +113,7 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
               geonameId = country.id;
             }
           });
-          var uiLocale = chrome.i18n.getUILanguage().replace('_', '-');
+          var uiLocale = chrome.i18n.getUILanguage().slice(0,2);
 
           // Get correct country database locale
           loadJson('geolite2/GeoLite2-Country-Locations-' + uiLocale + '.json', callback, function() {

@@ -194,9 +194,9 @@ module.exports = function (grunt) {
           '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-es.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-es.json',
           '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-fr.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-fr.json',
           '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ja.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ja.json',
-          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-pt-BR.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-pt-BR.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-pt-BR.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-pt.json',
           '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ru.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ru.json',
-          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-zh-CN.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-zh-CN.json'
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-zh-CN.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-zh.json'
         }
       }
     },
