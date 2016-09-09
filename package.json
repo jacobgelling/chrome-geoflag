@@ -2,7 +2,9 @@
   "name": "ext-easy",
   "version": "0.0.0",
   "dependencies": {
-    "ipaddr.js": "^1.2.0"
+    "ipaddr.js": "^1.2.0",
+    "md5": "^2.2.1",
+    "simplestorage.js": "^0.2.1"
   },
   "devDependencies": {
     "grunt": "~1.0.1",

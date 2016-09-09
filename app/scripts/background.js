@@ -1,6 +1,8 @@
 'use strict';
 
 var ipaddr = require('ipaddr.js');
+var md5 = require('md5');
+var simpleStorage = require('simplestorage.js');
 
 // Declare arrays to store IPs
 var currentIPList = {};
@@ -80,25 +82,34 @@ chrome.extension.onMessage.addListener(function (request, sender, response) {
 chrome.webRequest.onResponseStarted.addListener(function (info) {
   var ip = info.ip;
   var host = getHost(info.url);
+  var hash;
 
   // If IP is valid
   if (ipaddr.isValid(ip)) {
+    // Hash IP for localStorage pre-cache key
+    hash = md5(ip);
+
     // If IP is not the same as cached
     if (ip !== currentIPList[host]) {
       // Add IP to array
       currentIPList[host] = ip;
-      // Set country to undefined
-      currentCountryList[host] = undefined;
+
+      // Search localStorage pre-cache for country
+      if (simpleStorage.canUse()) {
+        currentCountryList[host] = simpleStorage.get(hash);
+      } else {
+        currentCountryList[host] = undefined;
+        console.warn('localStorage cannot be used!');
+      }
     }
 
-    // If no country cached
-    if (!currentCountryList[host]) {
+    if (currentCountryList[host]) {
+      showFlag(info.tabId, host);
+    } else { // If no country cached
       // Select correct database
       var IPV = (ipaddr.IPv4.isValid(ip))?4:6;
       var database = 'GeoLite2-Country-Blocks-IPv'+IPV+'.json';
 
-      /* geolite2/GeoLite2-Country-Blocks-IPv4.csv | json */
-      /* load the JSON # note - TODO : check object before un-needed load of json : */
       var geonameId;
       var JsonDataParse = {
         ParseIpv : function(json, callback) {
@@ -135,15 +146,16 @@ chrome.webRequest.onResponseStarted.addListener(function (info) {
                 currentCodeList[host] = country.continent.code.toLowerCase();
                 currentCountryList[host] = country.continent.name.replace(/'/g, '');
               }
-
+              // Cache country in localStorage
+              simpleStorage.set(hash, currentCountryList[host], {TTL: 24*60*60*1000});
               // Display country information in address bar
               return showFlag(info.tabId, host);
             }
           });
         }
       };
-      /* TODO - Needs to check a pre-cache storage because most people will use the same websites */
-      /* ie. { hostname : {image,whois etc}} } */
+
+      // Load the JSON database
       loadJson('geolite2/' + database, function success(response) {
         var jsonData = null;
         try{
