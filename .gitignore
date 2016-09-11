@@ -4,5 +4,5 @@ temp
 dist
 .sass-cache
 app/components
-test/bower_components
 package
+background2.js

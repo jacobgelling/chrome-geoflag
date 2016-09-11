@@ -1,11 +1,4 @@
-// Generated on 2015-06-22 using generator-chrome-extension 0.3.1
 'use strict';
-
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
 
 module.exports = function (grunt) {
 
@@ -21,6 +14,8 @@ module.exports = function (grunt) {
     dist: 'dist'
   };
 
+  var path = require('path');
+
   grunt.initConfig({
 
     // Project settings
@@ -28,10 +23,6 @@ module.exports = function (grunt) {
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
-      bower: {
-        files: ['bower.json'],
-        tasks: ['bowerInstall']
-      },
       js: {
         files: ['<%= config.app %>/scripts/{,*/}*.js'],
         tasks: ['jshint'],
@@ -77,19 +68,10 @@ module.exports = function (grunt) {
             '<%= config.app %>'
           ]
         }
-      },
-      test: {
-        options: {
-          open: false,
-          base: [
-            'test',
-            '<%= config.app %>'
-          ]
-        }
       }
     },
 
-    // Empties folders to start fresh
+    // Empties folders
     clean: {
       chrome: {
       },
@@ -101,6 +83,28 @@ module.exports = function (grunt) {
             '!<%= config.dist %>/.git*'
           ]
         }]
+      },
+      tmp: {
+        files: [{
+          dot: true,
+          src: [
+            '.tmp',
+            '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-pt-BR.json',
+            '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-zh-CN.json',
+            '<%= config.app %>/scripts/background2.js'
+          ]
+        }]
+      }
+    },
+
+    // Import required nodejs modules
+    browserify: {
+      build: {
+        src: ['<%= config.app %>/scripts/background.js'],
+        dest: '<%= config.app %>/scripts/background2.js',
+        options: {
+          debug: true
+        }
       }
     },
 
@@ -113,8 +117,6 @@ module.exports = function (grunt) {
       all: [
         'Gruntfile.js',
         '<%= config.app %>/scripts/{,*/}*.js',
-        '!<%= config.app %>/scripts/vendor/*',
-        'test/spec/{,*/}*.js'
       ]
     },
     mocha: {
@@ -126,12 +128,122 @@ module.exports = function (grunt) {
       }
     },
 
-    // Automatically inject Bower components into the HTML file
-    bowerInstall: {
-      app: {
-        src: [
-          '<%= config.app %>/*.html'
+    // Download GeoLite2 to temporary folder
+    curl: {
+      geolite2: {
+        src: 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country-CSV.zip',
+        dest: '.tmp/geolite2.zip',
+      }
+    },
+    unzip: {
+      geolite2: {
+        router: function (filepath) {
+          var extname = path.extname(filepath);
+
+          if (extname === '.csv') {
+            return path.basename(filepath);
+          } else {
+            return null;
+          }
+        },
+        src: '.tmp/geolite2.zip',
+        dest: '.tmp/geolite2/',
+      }
+    },
+
+    // Convert CSV to JSON
+    convert: {
+      blocks: {
+        options: {
+          csv: {
+            columns: [
+              'network',
+              'geoname_id'
+            ]
+          }
+        },
+        files: [
+          {
+            expand: true,
+            cwd: '.tmp/geolite2/',
+            src: ['GeoLite2-Country-Blocks-*.csv'],
+            dest: '<%= config.dist %>/geolite2/',
+            ext: '.json'
+          }
         ]
+      },
+      locations: {
+        files: [
+          {
+            expand: true,
+            cwd: '.tmp/geolite2/',
+            src: ['GeoLite2-Country-Locations-*.csv'],
+            dest: '<%= config.dist %>/geolite2/',
+            ext: '.json'
+          }
+        ]
+      }
+    },
+
+    // Minimize JSON
+    minjson: {
+      compile: {
+        files: { // Does not support folders as destination
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-IPv4.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-IPv4.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-IPv6.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-IPv6.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-de.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-de.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-en.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-en.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-es.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-es.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-fr.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-fr.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ja.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ja.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-pt.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-pt-BR.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ru.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-ru.json',
+          '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-zh.json': '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-zh-CN.json'
+        }
+      }
+    },
+
+    // Optimize JSON
+    'string-replace': {
+      blocks: {
+        src: '<%= config.dist %>/geolite2/GeoLite2-Country-Blocks-*.json',
+        dest: '<%= config.dist %>/geolite2/',
+        options: {
+          replacements: [
+            {
+              pattern: /."network":"network","geoname_id":"geoname_id".,/,
+              replacement: ''
+            },
+            {
+              pattern: /"network":/g,
+              replacement: '"ip":'
+            },
+            {
+              pattern: /"geoname_id":/g,
+              replacement: '"id":'
+            }
+          ]
+        }
+      },
+      locations: {
+        src: '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-*.json',
+        dest: '<%= config.dist %>/geolite2/',
+        options: {
+          replacements: [
+            {
+              pattern: /"locale_code":"(.*?)",/g,
+              replacement: ''
+            },
+            {
+              pattern: /"geoname_id":/g,
+              replacement: '"id":'
+            },
+            {
+              pattern: /"continent_code":"(.*?)","continent_name":"(.*?)","country_iso_code":"(.*?)","country_name":"(.*?)"/g,
+              replacement: '"continent":{"code":"$1","name":"$2"},"country":{"code":"$3","name":"$4"}'
+            }
+          ]
+        }
       }
     },
 
@@ -144,10 +256,9 @@ module.exports = function (grunt) {
       },
       html: [
         '<%= config.app %>/popup.html',
-        '<%= config.app %>/options.html'
+        '<%= config.app %>/background.html'
       ]
     },
-
     // Performs rewrites based on rev and the useminPrepare configuration
     usemin: {
       options: {
@@ -156,7 +267,6 @@ module.exports = function (grunt) {
       html: ['<%= config.dist %>/{,*/}*.html'],
       css: ['<%= config.dist %>/styles/{,*/}*.css']
     },
-
     // The following *-min tasks produce minifies files in the dist folder
     imagemin: {
       dist: {
@@ -168,7 +278,6 @@ module.exports = function (grunt) {
         }]
       }
     },
-
     svgmin: {
       dist: {
         files: [{
@@ -179,7 +288,6 @@ module.exports = function (grunt) {
         }]
       }
     },
-
     htmlmin: {
       dist: {
         options: {
@@ -201,31 +309,6 @@ module.exports = function (grunt) {
       }
     },
 
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= config.dist %>/styles/main.css': [
-    //         '<%= config.app %>/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-    // uglify: {
-    //   dist: {
-    //     files: {
-    //       '<%= config.dist %>/scripts/scripts.js': [
-    //         '<%= config.dist %>/scripts/scripts.js'
-    //       ]
-    //     }
-    //   }
-    // },
-    // concat: {
-    //   dist: {}
-    // },
-
     // Copies remaining files to places other tasks can use
     copy: {
       dist: {
@@ -241,32 +324,19 @@ module.exports = function (grunt) {
             'styles/{,*/}*.css',
             'styles/fonts/{,*/}*.*',
             '_locales/{,*/}*.json',
-            'geolite2/*.json' // TODO - get form an S3 bucket ?
           ]
         }]
       }
-    },
-
-    // Run some tasks in parallel to speed up build process
-    concurrent: {
-      chrome: [
-      ],
-      dist: [
-        'imagemin',
-        'svgmin'
-      ],
-      test: [
-      ]
     },
 
     // Auto buildnumber, exclude debug files. smart builds that event pages
     chromeManifest: {
       dist: {
         options: {
-          buildnumber: true,
+          buildnumber: false,
           indentSize: 2,
           background: {
-            target: 'scripts/background.js',
+            target: 'scripts/background2.js',
             exclude: [
               'scripts/chromereload.js'
             ]
@@ -275,57 +345,39 @@ module.exports = function (grunt) {
         src: '<%= config.app %>',
         dest: '<%= config.dist %>'
       }
-    },
-
-    // Compres dist files to package
-    compress: {
-      dist: {
-        options: {
-          archive: function() {
-            var manifest = grunt.file.readJSON('app/manifest.json');
-            return 'package/ext easy-' + manifest.version + '.zip';
-          }
-        },
-        files: [{
-          expand: true,
-          cwd: 'dist/',
-          src: ['**'],
-          dest: ''
-        }]
-      }
     }
   });
 
   grunt.registerTask('debug', function () {
     grunt.task.run([
       'jshint',
-      'concurrent:chrome',
       'connect:chrome',
       'watch'
     ]);
   });
 
-  grunt.registerTask('test', [
-    'connect:test',
-    'mocha'
-  ]);
-
   grunt.registerTask('build', [
     'clean:dist',
+    'browserify',
     'chromeManifest:dist',
     'useminPrepare',
-    'concurrent:dist',
-    'cssmin',
+    'imagemin',
+    'svgmin',
+    'curl',
+    'unzip',
+    //'cssmin',
+    'convert',
+    'minjson',
+    'string-replace',
     'concat',
     'uglify',
     'copy',
     'usemin',
-    'compress'
+    'clean:tmp'
   ]);
 
   grunt.registerTask('default', [
     'jshint',
-    'test',
     'build'
   ]);
 };

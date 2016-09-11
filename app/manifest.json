@@ -1,6 +1,6 @@
 {
-  "name": "__MSG_description__",
-  "version": "1.0.6",
+  "name": "GeoFlag",
+  "version": "1.0.3",
   "manifest_version": 2,
   "description": "__MSG_description__",
   "homepage_url": "https://github.com/jacobg830/chrome-geoflag",
@@ -12,31 +12,14 @@
   },
   "default_locale": "en",
   "background": {
-    "scripts": [
-      "components/ipaddr/lib/ipaddr.js",
-      "scripts/chromereload.js",
-      "scripts/background.js"
-    ]
+    "page": "background.html",
+    "persistent": true
   },
   "page_action": {
     "default_icon": "img/icons/icon19.png",
     "default_title": "GeoFlag",
     "default_popup": "popup.html"
   },
-  "options_page": "options.html",
-  "content_scripts": [
-    {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "scripts/contentscript.js"
-      ],
-      "run_at": "document_end",
-      "all_frames": false
-    }
-  ],
   "permissions": [
     "tabs",
     "history",
