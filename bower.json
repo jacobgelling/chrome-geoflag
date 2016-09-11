@@ -1,8 +1,0 @@
-{
-  "name": "ext-easy",
-  "version": "0.0.0",
-  "dependencies": {
-    "ipaddr": "~1.0.2"
-  },
-  "devDependencies": {}
-}
