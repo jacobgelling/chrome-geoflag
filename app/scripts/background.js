@@ -6,8 +6,8 @@ var simpleStorage = require('simplestorage.js');
 
 // Declare arrays to store IPs
 var currentIPList = {};
-var currentCountryList = {};
 var currentCodeList = {};
+var currentCountryList = {};
 
 // Get host from url
 function getHost(url) {
@@ -21,27 +21,75 @@ function getHost(url) {
   return host;
 }
 
+// Get country from localStorage
+function getStorage(host, hash) {
+  if (simpleStorage.canUse()) {
+    var precache = simpleStorage.get(hash);
+    if (precache) {
+      currentCodeList[host] = precache.code;
+      currentCountryList[host] = precache.country;
+    }
+    return true;
+  } else {
+    console.error('localStorage cannot be used!');
+    return false;
+  }
+}
+
+// Cache country in localStorage
+function setStorage(host, hash) {
+  if (simpleStorage.canUse()) {
+    var result = {};
+    result.code = currentCodeList[host];
+    result.country = currentCountryList[host];
+    if (result.code && result.country) {
+      simpleStorage.set(hash, result, {TTL: 24*60*60*1000});
+      return true;
+    } else {
+      console.error('Cannot cache result: ' + result);
+      return false;
+    }
+  } else {
+    console.error('localStorage cannot be used!');
+    return false;
+  }
+}
+
 // Display country information in address bar
 function showFlag(tabId, host) {
-  chrome.pageAction.setIcon({tabId: tabId, path: 'img/flags/' + currentCodeList[host] + '.png'});
-  chrome.pageAction.show(tabId);
-  var title = currentCountryList[host] + '\n';
-  if (currentIPList[host] !== host) {
-    title += host + '\n';
+  // Stop if tab is killed
+  function callback() {
+    if (chrome.runtime.lastError) {
+      // Tab doesn't exist
+      console.warn(chrome.runtime.lastError.message);
+      return false;
+    } else {
+      // Tab exists, show icon
+      chrome.pageAction.show(tabId);
+      var title = currentCountryList[host] + '\n';
+      if (currentIPList[host] !== host) {
+        title += host + '\n';
+      }
+      title += currentIPList[host];
+      chrome.pageAction.setTitle({tabId: tabId, title: title});
+      return true;
+    }
   }
-  title += currentIPList[host];
-  chrome.pageAction.setTitle({tabId: tabId, title: title});
+  // Update icon
+  chrome.pageAction.setIcon({tabId: tabId, path: 'img/flags/' + currentCodeList[host] + '.png'}, callback);
 }
 
 // Check if file exists
 function loadJson(url, success, fail) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url, true);
-  xhr.onload = function (e) {
-    if(typeof success === 'function') {
-      success(e.target.response);
-    } else {
-      return true;
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      if(typeof fail === 'function') {
+        success(xhr.responseText);
+      } else {
+        return true;
+      }
     }
   };
   xhr.onerror = function () {
@@ -52,6 +100,54 @@ function loadJson(url, success, fail) {
     }
   };
   xhr.send();
+}
+
+// Parse IP database
+function parseIpv(host, json) {
+  var addr = ipaddr.parse(currentIPList[host]);
+  var geonameId;
+
+  // Loop countries from JSON
+  json.forEach(function (country) {
+    var split = country.ip.split('/');
+    var range = ipaddr.parse(split[0]);
+    // If row contains ip
+    if (addr.match(range, split[1])) {
+      // Get geoname_id from row
+      geonameId = country.id;
+    }
+  });
+
+  if (geonameId) {
+    return geonameId;
+  } else {
+    console.warn('No ID for address: ' + currentIPList[host]);
+    return false;
+  }
+}
+
+// Parse locale database
+function parseLocale(geonameId, host, json) {
+  // Loop locales from JSON
+  json.forEach(function (locale) {
+    // If row contains geoname_id
+    if (locale.id === geonameId) {
+      // Store information
+      if (locale.country.code) {
+        currentCodeList[host] = locale.country.code.toLowerCase();
+        currentCountryList[host] = locale.country.name.replace(/'/g, '');
+      } else {
+        currentCodeList[host] = locale.continent.code.toLowerCase();
+        currentCountryList[host] = locale.continent.name.replace(/'/g, '');
+      }
+    }
+  });
+  if (currentCodeList[host] && currentCountryList[host]) {
+    return true;
+  } else {
+    console.warn('No locale for ID: ' + geonameId);
+    return false;
+  }
 }
 
 // Popup requests
@@ -82,102 +178,56 @@ chrome.extension.onMessage.addListener(function (request, sender, response) {
 chrome.webRequest.onResponseStarted.addListener(function (info) {
   var ip = info.ip;
   var host = getHost(info.url);
-  var hash;
 
   // If IP is valid
   if (ipaddr.isValid(ip)) {
     // Hash IP for localStorage pre-cache key
-    hash = md5(ip);
+    var hash = md5(ip);
 
     // If IP is not the same as cached
     if (ip !== currentIPList[host]) {
       // Add IP to array
       currentIPList[host] = ip;
-
-      // Search localStorage pre-cache for country
-      if (simpleStorage.canUse()) {
-        currentCountryList[host] = simpleStorage.get(hash);
-      } else {
-        currentCountryList[host] = undefined;
-        console.warn('localStorage cannot be used!');
-      }
+      getStorage(host, hash);
     }
 
-    if (currentCountryList[host]) {
+    if (currentCountryList[host] && currentCodeList[host]) {
       showFlag(info.tabId, host);
-    } else { // If no country cached
-      // Select correct database
+    } else {
       var IPV = (ipaddr.IPv4.isValid(ip))?4:6;
-      var database = 'GeoLite2-Country-Blocks-IPv'+IPV+'.json';
+      var uiLocale = chrome.i18n.getUILanguage().slice(0,2);
 
-      var geonameId;
-      var JsonDataParse = {
-        ParseIpv : function(json, callback) {
-          var addr = ipaddr.parse(ip);
-
-          json.forEach(function (country) {
-            // If row contains ip
-            var split = country.ip.split('/');
-            var range = ipaddr.parse(split[0]);
-            if (addr.match(range, split[1])) {
-              // Get geoname_id from row
-              geonameId = country.id;
-            }
-          });
-          var uiLocale = chrome.i18n.getUILanguage().slice(0,2);
-
-          // Get correct country database locale
-          loadJson('geolite2/GeoLite2-Country-Locations-' + uiLocale + '.json', callback, function() {
-            loadJson('geolite2/GeoLite2-Country-Locations-en.json', callback, function() {
-              /* TODO - error handler & logger */
-              console.log('error #majoq458');
-            });
-          });
-        },
-        ParseLoc : function(json) {
-          json.forEach(function (country) {
-            // If row contains geoname_id
-            if (country.id === geonameId) {
-              // Store information
-              if (country.country.code) {
-                currentCodeList[host] = country.country.code.toLowerCase();
-                currentCountryList[host] = country.country.name.replace(/'/g, '');
-              } else {
-                currentCodeList[host] = country.continent.code.toLowerCase();
-                currentCountryList[host] = country.continent.name.replace(/'/g, '');
+      // Load IP database
+      loadJson('geolite2/GeoLite2-Country-Blocks-IPv'+IPV+'.json',
+        function success(response) {
+          var geonameId = parseIpv(host, JSON.parse(response));
+          // Load locale database
+          loadJson('geolite2/GeoLite2-Country-Locations-'+uiLocale+'.json',
+            function success(response) {
+              if (parseLocale(geonameId, host, JSON.parse(response))) {
+                showFlag(info.tabId, host);
+                setStorage(host, hash);
               }
-              // Cache country in localStorage
-              simpleStorage.set(hash, currentCountryList[host], {TTL: 24*60*60*1000});
-              // Display country information in address bar
-              return showFlag(info.tabId, host);
+            },
+            function fail() {
+              loadJson('geolite2/GeoLite2-Country-Locations-en.json',
+                function success(response) {
+                  if (parseLocale(geonameId, host, JSON.parse(response))) {
+                    showFlag(info.tabId, host);
+                    setStorage(host, hash);
+                  }
+                },
+                function fail() {
+                  console.error('Error loading locale database.');
+                }
+              );
             }
-          });
+          );
+        },
+        function fail() {
+          console.error('Error loading IP database');
         }
-      };
-
-      // Load the JSON database
-      loadJson('geolite2/' + database, function success(response) {
-        var jsonData = null;
-        try{
-          jsonData = JSON.parse(response);
-          JsonDataParse.ParseIpv(jsonData, function(ParseIpvResult) {
-            var jsonIpv = null;
-            try {
-              jsonIpv = JSON.parse(ParseIpvResult);
-            } catch (e) {
-              /* TODO - error handler & logger */
-              console.log('error #hya59q');
-            }
-            JsonDataParse.ParseLoc(jsonIpv);
-          });
-        } catch (e) {
-          /* TODO - error handler & logger */
-          console.log('error #nsyur5');
-        }
-      } , function fail() {
-        /* TODO - error handler & logger */
-        console.log('error #jjus456');
-      });
+      );
     }
   }
   return;
