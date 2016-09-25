@@ -91,7 +91,6 @@ module.exports = function (grunt) {
             '.tmp',
             '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-pt-BR.json',
             '<%= config.dist %>/geolite2/GeoLite2-Country-Locations-zh-CN.json',
-            '<%= config.app %>/scripts/background2.js'
           ]
         }]
       }
@@ -101,7 +100,7 @@ module.exports = function (grunt) {
     browserify: {
       build: {
         src: ['<%= config.app %>/scripts/background.js'],
-        dest: '<%= config.app %>/scripts/background2.js',
+        dest: '<%= config.dist %>/scripts/background.js',
         options: {
           debug: true
         }
@@ -336,7 +335,7 @@ module.exports = function (grunt) {
           buildnumber: false,
           indentSize: 2,
           background: {
-            target: 'scripts/background2.js',
+            target: 'scripts/background.js',
             exclude: [
               'scripts/chromereload.js'
             ]
